@@ -18,6 +18,7 @@ import BeneficiaryDelete, { beneficiarydelete } from "./BeneficiaryDelete";
 import { searchBeneficiary } from "./utils/search";
 import { EditBeneficiary } from "./EditBeneficiary";
 import { AddBeneficiary } from "./AddBeneficiary";
+import Previous from "./Previous"
 import {
   AppBar,
   Toolbar,
@@ -629,12 +630,20 @@ export default class Dashboard extends Component {
         )}
         <AppBar position="static" style={{ backgroundColor: "#1F8A70" }}>
           <Toolbar>
-            <div>
+
+          {this.state?.filteredBeneficiary
+                  ?.reverse()
+                  .map((row, index) => (
+            <div  key={index}>
               <Button variant="contained" color="primary" href="/video">
                 PC INFO
               </Button>
+              &nbsp; &nbsp;
+              <Button  variant="contained" color="primary"> {row.m_nm} </Button>
             </div>
-
+            ))
+            
+          }
             <div style={{ flexGrow: 1 }} />
             <div style={{ flexGrow: 1 }}>
               <div style={{ display: "flex", alignItems: "center" }}>
@@ -715,8 +724,9 @@ export default class Dashboard extends Component {
                     color: "black",
                   }}
                 >
-                  <Typography
+                  <Button
                     variant="h6"
+                    href="/video"
                     style={{
                       fontWeight: "bold",
                       fontSize: "16px", // Adjust the font size as desired
@@ -727,7 +737,7 @@ export default class Dashboard extends Component {
                     }}
                   >
                     {row.name}
-                  </Typography>
+                  </Button>
                 </div>
               </div>
               {/* <div style={{ flexGrow: 1 }} /> */}
@@ -810,12 +820,8 @@ export default class Dashboard extends Component {
                     <b> Duration </b>
                   </TableCell>
 
-                  <TableCell align="center">
-                    <b> School Name </b>
-                  </TableCell>
-                  <TableCell align="center">
-                    <b> User Name </b>
-                  </TableCell>
+             
+            
                 </TableRow>
               </TableHead>
 
@@ -832,23 +838,8 @@ export default class Dashboard extends Component {
                         {this.convertToHoursAndMinutes(ttime.total_time)}
                       </TableCell>
 
-                      <TableCell align="center">{row.name}</TableCell>
+                      {/* <TableCell align="center">{row.name}</TableCell> */}
 
-                      <TableCell align="center">
-                        {/* <Button
-                          className="button_style"
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          onClick={() => this.handleProductEditOpen(row)}
-                        >
-                          Edit
-                        </Button>
-
-                        <BeneficiaryDelete row={row} /> */}
-
-                        {row.m_nm}
-                      </TableCell>
 
                       {/* <TableCell align="center">
                         <Button
@@ -875,7 +866,9 @@ export default class Dashboard extends Component {
               </TableBody>
             </Table>
 
-            <br />
+
+            {/* <Previous /> */}
+
             <Pagination
               count={this.state.pages}
               page={this.state.page}
@@ -901,6 +894,7 @@ export default class Dashboard extends Component {
             <p>total_time: {lastData.total_time}</p>
           </div> */}
         </div>
+
 
         <AppBar
           position="static"

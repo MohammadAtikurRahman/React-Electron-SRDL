@@ -7,6 +7,7 @@ import Dashboard from "./Dashboard";
 import Test from "./Test";
 import Profile from "./Profile";
 import Enumerator from "./Enumerator";
+import Previous from "./Previous"
 import Video from "./Video";
 import "./Login.css";
 import File from "./File";
@@ -22,6 +23,7 @@ ReactDOM.render(
       <Route path="/video" element={<Video />} />
       <Route path="/video" element={<Video />} />
       <Route path="/file" element={<File />} />
+      <Route path="/previous" element={<Previous />} />
 
       <Route path="/profile/:id" element={<Profile />} />
     </Routes>

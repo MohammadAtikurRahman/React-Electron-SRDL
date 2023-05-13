@@ -8,7 +8,7 @@ let backendProcess;
 function createWindow() {
   const win = new BrowserWindow({
     width: 900,
-    height: 600,
+    height: 620,
     webPreferences: {
       nodeIntegration: true,
     },
