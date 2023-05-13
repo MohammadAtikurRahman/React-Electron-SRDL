@@ -11,6 +11,7 @@ import Previous from "./Previous"
 import Video from "./Video";
 import "./Login.css";
 import File from "./File";
+import Allcontent from "./Allcontent.js";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -24,6 +25,7 @@ ReactDOM.render(
       <Route path="/video" element={<Video />} />
       <Route path="/file" element={<File />} />
       <Route path="/previous" element={<Previous />} />
+      <Route path="/allcontent" element={<Allcontent />} />
 
       <Route path="/profile/:id" element={<Profile />} />
     </Routes>

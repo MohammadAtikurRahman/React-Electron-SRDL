@@ -11,7 +11,6 @@ import {
 } from "@material-ui/core";
 import { Pagination } from "@material-ui/lab";
 import swal from "sweetalert";
-import File from "./File"
 
 import { Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
@@ -19,6 +18,7 @@ import BeneficiaryDelete, { beneficiarydelete } from "./BeneficiaryDelete";
 import { searchBeneficiary } from "./utils/search";
 import { EditBeneficiary } from "./EditBeneficiary";
 import { AddBeneficiary } from "./AddBeneficiary";
+import Previous from "./Previous"
 import {
   AppBar,
   Toolbar,
@@ -32,7 +32,7 @@ import { Search as SearchIcon } from "@material-ui/icons";
 const axios = require("axios");
 const baseUrl = process.env.REACT_APP_URL;
 
-export default class Video extends Component {
+export default class Allcontent extends Component {
   constructor() {
     super();
     this.state = {
@@ -41,6 +41,7 @@ export default class Video extends Component {
       openProductEditModal: false,
       id: "",
       lastData: {},
+      ttime: {},
 
       name: "",
       f_nm: "",
@@ -48,7 +49,6 @@ export default class Video extends Component {
       sl: "",
       ben_id: "",
       m_nm: "",
-      data: [],
 
       age: "",
       dis: "",
@@ -111,60 +111,6 @@ export default class Video extends Component {
   handleClick(event) {
     this.setState({ anchorEl: event.currentTarget });
   }
-  fetchData = () => {
-    axios
-        .get('http://localhost:2000/get-vd')
-        .then((response) => {
-          this.setState({ data: response.data });
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-        });
-  };
-
- 
-  downloadCSV = () => {
-     axios
-       .get('http://localhost:2000/get-vd')
-       .then((response) => {
-         const { data } = response;
-         let csvContent = 'data:text/csv;charset=utf-8,';
-   
-         // Define custom column names
-         const columnNames = ['Video Name', 'Location', 'Player Time', 'PC Time Start', 'Player End Time', 'PC End Time', 'Total Time'];
-   
-         // Add column headers
-         csvContent += columnNames.map(header => `"${header}"`).join(',') + '\n';
-   
-         // Add data rows
-         data.forEach((item) => {
-           const row = [
-             item.video_name,
-             item.location,
-             item.pl_start,
-             item.start_date_time,
-             item.pl_end,
-             item.end_date_time,
-             item.duration
-           ];
-           csvContent += row.map(value => `"${value}"`).join(',') + '\n';
-         });
-   
-         // Create a download link
-         const encodedUri = encodeURI(csvContent);
-         const link = document.createElement('a');
-         link.setAttribute('href', encodedUri);
-         link.setAttribute('download', 'data.csv');
-         document.body.appendChild(link);
-         link.click();
-         document.body.removeChild(link);
-       })
-       .catch((error) => {
-         console.error('Error downloading CSV:', error);
-       });
-   };
-
-
 
   handleClose() {
     this.setState({ anchorEl: null });
@@ -205,6 +151,8 @@ export default class Video extends Component {
   }
   
   componentDidMount = () => {
+    this.fetchData();
+
     let token = localStorage.getItem("token");
     if (!token) {
       this.props.history.push("/login");
@@ -224,7 +172,6 @@ export default class Video extends Component {
     const newTimeData = {
       windowsStartTime: currentTime.toLocaleString(),
     };
-    this.fetchData();
 
     const storedData = localStorage.getItem("timeData");
     if (storedData) {
@@ -273,9 +220,10 @@ export default class Video extends Component {
     this.sendPcData(this.state.timeData);
   };
 
+  
   sendData = async () => {
     const data = {
-      userId: 34405063,
+      userId: 47701543,
       win_start: this.state.timeData.firstStartTime,
       win_end: this.state.timeData.lastStartTime,
       total_time: this.state.timeData.totalDuration,
@@ -331,12 +279,82 @@ export default class Video extends Component {
     try {
       const response = await axios.get("http://localhost:2000/get-pc");
       const data = response.data;
-      const lastData = data[data.length - 1];
+      const ttime = data[data.length - 1];
+      this.setState({ ttime });
+
+      const today = new Date().toLocaleDateString(); // Get current date in the format "MM/DD/YYYY"
+  
+      let earliestStart = null;
+      let latestEnd = null;
+  
+      for (let i = 0; i < data.length; i++) {
+        const startDate = new Date(data[i].win_start);
+        const endDate = new Date(data[i].win_end);
+  
+        const entryDate = startDate.toLocaleDateString(); // Get entry's date in the format "MM/DD/YYYY"
+  
+        if (entryDate === today) {
+          if (!earliestStart || startDate < new Date(earliestStart)) {
+            earliestStart = data[i].win_start;
+          }
+  
+          if (!latestEnd || endDate > new Date(latestEnd)) {
+            latestEnd = data[i].win_end;
+          }
+        }
+      }
+  
+      const lastData = {
+        earliestStart,
+        latestEnd
+      };
+  
+      console.log("result", lastData);
       this.setState({ lastData });
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+  
+
+
+
+  downloadCSV = () => {
+    axios
+      .get('http://localhost:2000/get-download')
+      .then((response) => {
+        const { data } = response;
+        let csvContent = 'data:text/csv;charset=utf-8,';
+  
+        // Add column headers
+        const headers = ['Start Time', 'End Time', 'Total Time'];
+        csvContent += headers.map(header => `"${header}"`).join(',') + '\n';
+  
+        // Add data rows
+        data.forEach((item) => {
+          const startTime = item.earliestStart;
+          const endTime = item.latestEnd;
+          const totalTime = item.total_time;
+          const row = [startTime, endTime, totalTime];
+          csvContent += row.map(value => `"${value}"`).join(',') + '\n';
+        });
+  
+        // Create a download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'data.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      })
+      .catch((error) => {
+        console.error('Error downloading CSV:', error);
+      });
+  };
+  
+
+  
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value }, () => {});
 
@@ -396,14 +414,12 @@ export default class Video extends Component {
   };
 
   render() {
-    const { data } = this.state;
-
-
     const { dataSent } = this.state;
     const { lastData } = this.state;
+    const { ttime } = this.state;
 
     return (
-      <div style={{overflowX: 'hidden', maxWidth: '100%'}}>
+      <div>
         {/* <div>
                     <br></br>
                     <h2>Dashboard</h2>
@@ -614,27 +630,37 @@ export default class Video extends Component {
         )}
         <AppBar position="static" style={{ backgroundColor: "#1F8A70" }}>
           <Toolbar>
-            <div>
-              <Button variant="contained" color="primary" href="/dashboard" style={{ zIndex: "9999" }} >
-              Video INFO
-              </Button>
-            </div>
 
+          {this.state?.filteredBeneficiary
+                  ?.reverse()
+                  .map((row, index) => (
+            <div  key={index}>
+              <Button variant="contained" color="primary" href="/video">
+                PC INFO
+              </Button>
+              &nbsp; &nbsp;
+              <Button  variant="contained" color="primary"> {row.m_nm} </Button>
+            </div>
+            ))
+            
+          }
             <div style={{ flexGrow: 1 }} />
             <div style={{ flexGrow: 1 }}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 &nbsp; &nbsp; &nbsp; &nbsp;
-                {/*<Button*/}
-                {/*  variant="contained"*/}
-                {/*  size="small"*/}
-                {/*  onClick={this.handleProductOpen}*/}
-                {/*>*/}
-                {/*  /!*<b> Add School</b>*!/*/}
-                {/*</Button>*/}
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={this.handleProductOpen}
+                >
+                  <b> Add School</b>
+                </Button>
                 &nbsp; &nbsp;
-                {/*<Button variant="contained" size="small">*/}
-                {/*  /!*<b> Download </b>*!/*/}
-                {/*</Button>*/}
+                <Button variant="contained" size="small"
+                                    onClick={this.downloadCSV}
+                                    >
+                  <b> Download </b>
+                </Button>
                 {/* &nbsp; &nbsp; */}
                 {/* <Button variant="contained" size="small">
                   <b> Details </b>
@@ -651,47 +677,19 @@ export default class Video extends Component {
                     placeholder: "SEARCH",
                   }}
                 /> */}
-
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-
-
-
-
+                {dataSent ? (
+                  <p></p>
+                ) : (
                   <Button
                     className="button_style"
                     variant="contained"
-                    color="success"
+                    color="primary"
                     size="small"
-                    style={{ zIndex: "9999" }}
-                    onClick={this.downloadCSV}
+                    onClick={this.handleClick1}
                   >
-                   Download
+                    Pc Usages
                   </Button>
-
+                )}
                 {/* <Button
                   className="button_style"
                   variant="contained"
@@ -713,43 +711,40 @@ export default class Video extends Component {
           </Toolbar>
         </AppBar>
 
-
-
         <AppBar position="static" style={{ backgroundColor: "#3399CC" }}>
           {this.state?.filteredBeneficiary?.map((row, index) => (
-              <Toolbar>
-                <div>
-                  <div
-                      style={{
-                        backgroundColor: "#FF9933", // Adjust the color as desired
-                        borderRadius: "4px",
-                        display: "inline-block",
-                        textDecoration: "none",
-                        color: "black",
-                      }}
+            <Toolbar>
+              <div>
+                <div
+                  style={{
+                    backgroundColor: "#FF9933", // Adjust the color as desired
+                    borderRadius: "4px",
+                    display: "inline-block",
+                    textDecoration: "none",
+                    color: "black",
+                  }}
+                >
+                  <Button
+                    variant="h6"
+                    href="/video"
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "16px", // Adjust the font size as desired
+
+                      padding: "4px",
+                      paddingLeft: "12px",
+                      paddingRight: "12px",
+                    }}
                   >
-                    <Button
-                                        href="/allcontent"
-
-                        variant="h6"
-                        style={{
-                          fontWeight: "bold",
-                          fontSize: "16px", // Adjust the font size as desired
-
-                          padding: "4px",
-                          paddingLeft: "12px",
-                          paddingRight: "12px",
-                        }}
-                    >
-                      {row.name}
-                    </Button>
-                  </div>
+                    {row.name}
+                  </Button>
                 </div>
-                {/* <div style={{ flexGrow: 1 }} /> */}
-                &nbsp; &nbsp; &nbsp; &nbsp;
-                <div style={{ flexGrow: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    {/* <IconButton>
+              </div>
+              {/* <div style={{ flexGrow: 1 }} /> */}
+              &nbsp; &nbsp; &nbsp; &nbsp;
+              <div style={{ flexGrow: 1 }}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  {/* <IconButton>
                   <SearchIcon style={{ color: "white" }} />
                 </IconButton>
                 <InputBase
@@ -760,153 +755,127 @@ export default class Video extends Component {
                     placeholder: "SEARCH",
                   }}
                 /> */}
-                    <Button
-                        variant="contained"
-                        size="small"
-                        onClick={this.handleProductOpen}
-                    >
-                      <b>EIIN: {row.beneficiaryId} </b>
-                    </Button>
-                    &nbsp; &nbsp;
-                    <Button variant="contained" size="small">
-                      <b> LAB ID: {row.u_nm} </b>
-                    </Button>
-                    &nbsp; &nbsp;
-                    <Button variant="contained" size="small">
-                      <b> PC ID: {row.f_nm} </b>
-                    </Button>
-                    &nbsp; &nbsp;
-                    <Button
-                        className="button_style"
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        style={{ zIndex: "9999" }}
-
-                        onClick={() => this.handleProductEditOpen(row)}
-                    >
-                      Edit
-                    </Button>
-                    <BeneficiaryDelete
-                                                            row={row} />
-                    &nbsp; &nbsp;
-
-                  </div>
+                  <Button
+                    variant="contained"
+                    size="small"
+                  >
+                    <b>EIIN: {row.beneficiaryId} </b>
+                  </Button>
+                  &nbsp; &nbsp;
+                  <Button variant="contained" size="small">
+                    <b> LAB ID: {row.u_nm} </b>
+                  </Button>
+                  &nbsp; &nbsp;
+                  <Button variant="contained" size="small">
+                    <b> PC ID: {row.f_nm} </b>
+                  </Button>
+                  &nbsp; &nbsp;
+                  <Button
+                    className="button_style"
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() => this.handleProductEditOpen(row)}
+                  >
+                    Edit
+                  </Button>
+                  <BeneficiaryDelete row={row} />
+                  &nbsp; &nbsp;
                 </div>
-              </Toolbar>
+              </div>
+            </Toolbar>
           ))}
         </AppBar>
+
         <div>
+          <TableContainer>
+            {/* <div className="search-container">
+                        <TextField
+                            id="standard-basic"
+                            type="search"
+                            autoComplete="off"
+                            name="search"
+                            value={this.state.search}
+                            onChange={this.onChange}
+                            placeholder="Search by Beneficiary"
+                            required
+                            style={{ border: "1px solid grey", padding: "1px" }}
+                            InputProps={{
+                                disableUnderline: true,
+                                style: { paddingRight: "5px", paddingLeft: "50px" },
+                            }}
+                        />
+                    </div> */}
 
-          <div style={{ transform: 'translate(10px, -111px)' }}>
-            <File />
-          </div>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">
+                    <b> Start Date & Time </b>
+                  </TableCell>
+                  <TableCell align="center">
+                    <b> Last Usage Date & Time </b>
+                  </TableCell>
+                  <TableCell align="center">
+                    <b> Duration </b>
+                  </TableCell>
 
-          {/*<TableContainer>*/}
-          {/*  /!* <div className="search-container">*/}
-          {/*              <TextField*/}
-          {/*                  id="standard-basic"*/}
-          {/*                  type="search"*/}
-          {/*                  autoComplete="off"*/}
-          {/*                  name="search"*/}
-          {/*                  value={this.state.search}*/}
-          {/*                  onChange={this.onChange}*/}
-          {/*                  placeholder="Search by Beneficiary"*/}
-          {/*                  required*/}
-          {/*                  style={{ border: "1px solid grey", padding: "1px" }}*/}
-          {/*                  InputProps={{*/}
-          {/*                      disableUnderline: true,*/}
-          {/*                      style: { paddingRight: "5px", paddingLeft: "50px" },*/}
-          {/*                  }}*/}
-          {/*              />*/}
-          {/*          </div> *!/*/}
+             
+            
+                </TableRow>
+              </TableHead>
 
-          {/*  <Table aria-label="simple table">*/}
-          {/*    <TableHead>*/}
-          {/*      <TableRow>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> Start Date & Time </b>*/}
-          {/*        </TableCell>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> Last Usage Date & Time </b>*/}
-          {/*        </TableCell>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> Duration </b>*/}
-          {/*        </TableCell>*/}
+              <TableBody>
+                {this.state?.filteredBeneficiary
+                  ?.reverse()
+                  .map((row, index) => (
+                    <TableRow key={index}>
+                      {/* <TableCell align="center">{lastData.earliestStart}</TableCell>
 
-          {/*        <TableCell align="center">*/}
-          {/*          <b> School Name </b>*/}
-          {/*        </TableCell>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> User Name </b>*/}
-          {/*        </TableCell>*/}
-          {/*      </TableRow>*/}
-          {/*    </TableHead>*/}
+                      <TableCell align="center"> {lastData.latestEnd}</TableCell>
 
-          {/*    <TableBody>*/}
-          {/*      {this.state?.filteredBeneficiary*/}
-          {/*        ?.reverse()*/}
-          {/*        .map((row, index) => (*/}
-          {/*          <TableRow key={index}>*/}
-          {/*            <TableCell align="center">{lastData.win_start}</TableCell>*/}
+                      <TableCell align="center" component="th" scope="row">
+                        {this.convertToHoursAndMinutes(ttime.total_time)}
+                      </TableCell> */}
 
-          {/*            <TableCell align="center"> {lastData.win_end}</TableCell>*/}
+                      {/* <TableCell align="center">{row.name}</TableCell> */}
 
-          {/*            <TableCell align="center" component="th" scope="row">*/}
-          {/*              {this.convertToHoursAndMinutes(lastData.total_time)}*/}
-          {/*            </TableCell>*/}
 
-          {/*            <TableCell align="center">{row.name}</TableCell>*/}
+                      {/* <TableCell align="center">
+                        <Button
+                          className="button_style"
+                          variant="contained"
+                          // color="primary"
+                          size="small"
+                        >
+                          <Link
+                            style={{
+                              // backgroundColor: "#1C6758",
+                              textDecoration: "none",
+                              color: "black",
+                            }}
+                            to={`/profile/${row._id}`}
+                            state={row}
+                          >
+                             Details
+                          </Link>
+                        </Button>
+                      </TableCell> */}
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
 
-          {/*            <TableCell align="center">*/}
-          {/*              /!* <Button*/}
-          {/*                className="button_style"*/}
-          {/*                variant="outlined"*/}
-          {/*                color="primary"*/}
-          {/*                size="small"*/}
-          {/*                onClick={() => this.handleProductEditOpen(row)}*/}
-          {/*              >*/}
-          {/*                Edit*/}
-          {/*              </Button>*/}
 
-          {/*              <BeneficiaryDelete row={row} /> *!/*/}
+            <Previous />
 
-          {/*              {row.m_nm}*/}
-          {/*            </TableCell>*/}
-
-          {/*            /!* <TableCell align="center">*/}
-          {/*              <Button*/}
-          {/*                className="button_style"*/}
-          {/*                variant="contained"*/}
-          {/*                // color="primary"*/}
-          {/*                size="small"*/}
-          {/*              >*/}
-          {/*                <Link*/}
-          {/*                  style={{*/}
-          {/*                    // backgroundColor: "#1C6758",*/}
-          {/*                    textDecoration: "none",*/}
-          {/*                    color: "black",*/}
-          {/*                  }}*/}
-          {/*                  to={`/profile/${row._id}`}*/}
-          {/*                  state={row}*/}
-          {/*                >*/}
-          {/*                   Details*/}
-          {/*                </Link>*/}
-          {/*              </Button>*/}
-          {/*            </TableCell> *!/*/}
-          {/*          </TableRow>*/}
-          {/*        ))}*/}
-          {/*    </TableBody>*/}
-          {/*  </Table>*/}
-
-          {/*  <br />*/}
-          {/*  <Pagination*/}
-          {/*    count={this.state.pages}*/}
-          {/*    page={this.state.page}*/}
-          {/*    onChange={this.pageChange}*/}
-          {/*    color="primary"*/}
-          {/*  />*/}
-          {/*</TableContainer>*/}
+            <Pagination
+              count={this.state.pages}
+              page={this.state.page}
+              onChange={this.pageChange}
+              color="primary"
+            />
+          </TableContainer>
           {/* 
           <div className="App">
             <header className="App-header">

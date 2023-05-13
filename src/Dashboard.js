@@ -726,7 +726,7 @@ export default class Dashboard extends Component {
                 >
                   <Button
                     variant="h6"
-                    href="/video"
+                    href="/allcontent"
                     style={{
                       fontWeight: "bold",
                       fontSize: "16px", // Adjust the font size as desired
