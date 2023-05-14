@@ -62,6 +62,7 @@ app.use("/", (req, res, next) => {
             req.path == "/get-pc" ||
             req.path === "/get-vd" ||
             req.path == "/get-download" ||
+            req.path == "/get-school" ||
             req.path == "/list-beneficiary" ||
             req.path == "/beneficiary"
         ) {
@@ -143,67 +144,6 @@ app.post("/register", async (req, res) => {
     }
 });
 
-//     try {
-//         const query = {};
-//         query["$and"] = [];
-//         query["$and"].push({
-//             is_delete: false,
-//             user_id: req.user.id,
-//         });
-//         if (req.query && req.query.search) {
-//             query["$and"].push({
-//                 name: {$regex: req.query.search},
-//             });
-//         }
-//         const perPage = 5;
-//         const page = req.query.page || 1;
-//         product
-//             .find(query, {
-//                 date: 1,
-//                 name: 1,
-//                 id: 1,
-//                 desc: 1,
-//                 price: 1,
-//                 discount: 1,
-//                 image: 1,
-//             })
-//             .skip(perPage * page - perPage)
-//             .limit(perPage)
-//             .then(data => {
-//                 product
-//                     .find(query)
-//                     .countDocuments()
-//                     .then(countDocuments => {
-//                         if (data && data.length > 0) {
-//                             res.status(200).json({
-//                                 status: true,
-//                                 title: "Product retrived.",
-//                                 products: data,
-//                                 current_page: page,
-//                                 total: countDocuments,
-//                                 pages: Math.ceil(countDocuments / perPage),
-//                             });
-//                         } else {
-//                             res.status(400).json({
-//                                 errorMessage: "There is no beneficiary!",
-//                                 status: false,
-//                             });
-//                         }
-//                     });
-//             })
-//             .catch(err => {
-//                 res.status(400).json({
-//                     errorMessage: err.message || err,
-//                     status: false,
-//                 });
-//             });
-//     } catch (e) {
-//         res.status(400).json({
-//             errorMessage: "Something went wrong!",
-//             status: false,
-//         });
-//     }
-// });
 
 app.get("/api", (req, res) => {
     user.find((err, val) => {
@@ -377,8 +317,6 @@ app.get("/get-pc", async (req, res) => {
 });
 
 
-
-
 app.get("/get-download", async (req, res) => {
   let users = await user.find({})
     .select("-username")
@@ -441,8 +379,63 @@ app.get("/get-download", async (req, res) => {
   return res.status(200).json(result);
 });
 
-
-
+app.get("/get-school", async (req, res) => {
+    let users = await user.find({})
+      .select("-username")
+      .select("-password")
+      .select("-createdAt")
+      .select("-updatedAt")
+      .select("-__v")
+      .select("-id")
+      .select("-_id")
+      .select("-userId");
+  
+    const formattedData = users[0].pc;
+    const beneficiaries = users[0].beneficiary;
+  
+    let dataByDate = {};
+    for (let data of formattedData) {
+      let dateObject = moment(data.win_end, "M/D/YYYY, h:mm:ss A");
+  
+      if (!dateObject.isValid()) {
+        continue;
+      }
+  
+      let date = dateObject.format('YYYY-MM-DD');
+      if (!dataByDate[date]) {
+        dataByDate[date] = [];
+      }
+      dataByDate[date].push(data);
+    }
+  
+    let result = [];
+    for (let date in dataByDate) {
+      dataByDate[date].sort((a, b) => moment(a.win_start, "M/D/YYYY, h:mm:ss A").toDate() - moment(b.win_start, "M/D/YYYY, h:mm:ss A").toDate());
+      let earliestStart = dataByDate[date][0].win_start;
+  
+      dataByDate[date].sort((a, b) => moment(b.win_end, "M/D/YYYY, h:mm:ss A").toDate() - moment(a.win_end, "M/D/YYYY, h:mm:ss A").toDate());
+      let latestEnd = dataByDate[date][0].win_end;
+  
+      let total_time = dataByDate[date][0].total_time;
+      let formattedTotalTime = '';
+  
+      if (total_time < 60) {
+        formattedTotalTime = `${total_time} minute${total_time !== 1 ? 's' : ''}`;
+      } else {
+        const hours = Math.floor(total_time / 60);
+        const minutes = total_time % 60;
+        formattedTotalTime = `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+      }
+  
+      result.push({
+        earliestStart,
+        latestEnd,
+        total_time: formattedTotalTime
+      });
+    }
+  
+    return res.status(200).json({beneficiary: beneficiaries, pc: result});
+  });
 
 
 
