@@ -635,11 +635,13 @@ export default class Allcontent extends Component {
                   ?.reverse()
                   .map((row, index) => (
             <div  key={index}>
-              <Button variant="contained" color="primary" href="/video">
+              <Button variant="contained" color="primary" href="/dashboard">
                 PC INFO
               </Button>
               &nbsp; &nbsp;
-              <Button  variant="contained" color="primary"> {row.m_nm} </Button>
+              <Button variant="contained" color="primary" href="/video">
+                VIDEO INFO
+              </Button>
             </div>
             ))
             
@@ -649,11 +651,13 @@ export default class Allcontent extends Component {
               <div style={{ display: "flex", alignItems: "center" }}>
                 &nbsp; &nbsp; &nbsp; &nbsp;
                 <Button
-                  variant="contained"
+              variant="outlined"
                   size="small"
-                  onClick={this.handleProductOpen}
+                  // onClick={this.handleProductOpen}
+                  disabled
+                  style={{ color: "black"}}
                 >
-                  <b> Add School</b>
+                  <b> Details PC Usages</b>
                 </Button>
                 &nbsp; &nbsp;
                 <Button variant="contained" size="small"
@@ -677,7 +681,7 @@ export default class Allcontent extends Component {
                     placeholder: "SEARCH",
                   }}
                 /> */}
-                {dataSent ? (
+                {/* {dataSent ? (
                   <p></p>
                 ) : (
                   <Button
@@ -689,7 +693,7 @@ export default class Allcontent extends Component {
                   >
                     Pc Usages
                   </Button>
-                )}
+                )} */}
                 {/* <Button
                   className="button_style"
                   variant="contained"

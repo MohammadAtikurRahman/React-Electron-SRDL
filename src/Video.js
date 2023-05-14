@@ -729,7 +729,6 @@ export default class Video extends Component {
                       }}
                   >
                     <Button
-                                        href="/allcontent"
 
                         variant="h6"
                         style={{
@@ -739,7 +738,10 @@ export default class Video extends Component {
                           padding: "4px",
                           paddingLeft: "12px",
                           paddingRight: "12px",
+                          zIndex: "99999"
                         }}
+                        href="/allcontent"
+
                     >
                       {row.name}
                     </Button>
