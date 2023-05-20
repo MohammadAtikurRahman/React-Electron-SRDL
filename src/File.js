@@ -48,7 +48,7 @@ const File = () => {
     const insertAndFetchData = () => {
       axios
         .post('http://localhost:2000/videoinfo', {
-          userId: 47701543,
+          userId: 25682338,
           videos: videoInfo
         })
         .then(() => {
@@ -86,29 +86,149 @@ const File = () => {
          
 
             <div style={{ overflowX: 'hidden', maxWidth: '97.6%' }}>
-                {data.length > 0 && (
-                    <table style={{ tableLayout: 'fixed', width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
-                        <thead>
-                        <tr>
-                            <th style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>Video Name</th>
-                            <th style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>File Location</th>
-                            <th style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>Player Starting</th>
-                            <th style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>Start Video Time</th>
-                            <th style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>Player Ending</th>
-                            <th style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>End Video Time</th>
-                            <th style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>Duration</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {data.map((item, index) => (
-                            <tr key={index}>
-                                <td style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>{item.video_name}</td>
-                                <td style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>{item.location}</td>
-                                <td style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>{item.pl_start}</td>
-                                <td style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>{item.start_date_time}</td>
-                                <td style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>{item.pl_end}</td>
-                                <td style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>{item.end_date_time}</td>
-                                <td style={{ fontSize: '8px', border: '1px solid #ddd', padding: '8px' }}>{item.duration}</td>
+  {data.length > 0 && (
+    <table
+      style={{
+        tableLayout: 'fixed',
+        width: '100%',
+        borderCollapse: 'collapse',
+        border: '1px solid black', // Set table border color to black
+      }}
+    >
+      <thead>
+        <tr>
+          <th
+            style={{
+              fontSize: '8px',
+              border: '1px solid black', // Apply border to table header cells
+              padding: '8px',
+            }}
+          >
+            Video Name
+          </th>
+          <th
+            style={{
+              fontSize: '8px',
+              border: '1px solid black',
+              padding: '8px',
+            }}
+          >
+            File Location
+          </th>
+          <th
+            style={{
+              fontSize: '8px',
+              border: '1px solid black',
+              padding: '8px',
+            }}
+          >
+            Player Starting
+          </th>
+          <th
+            style={{
+              fontSize: '8px',
+              border: '1px solid black',
+              padding: '8px',
+            }}
+          >
+            Start Video Time
+          </th>
+          <th
+            style={{
+              fontSize: '8px',
+              border: '1px solid black',
+              padding: '8px',
+            }}
+          >
+            Player Ending
+          </th>
+          <th
+            style={{
+              fontSize: '8px',
+              border: '1px solid black',
+              padding: '8px',
+            }}
+          >
+            End Video Time
+          </th>
+          <th
+            style={{
+              fontSize: '8px',
+              border: '1px solid black',
+              padding: '8px',
+            }}
+          >
+            Duration
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.reverse().map((item, index) => (
+          <tr key={index}>
+            <td
+              style={{
+                fontSize: '8px',
+                border: '1px solid black', // Apply border to table cells
+                padding: '8px',
+              }}
+            >
+              {item.video_name}
+            </td>
+            <td
+              style={{
+                fontSize: '8px',
+                border: '1px solid black',
+                padding: '8px',
+              }}
+            >
+              {item.location}
+            </td>
+            <td
+              style={{
+                fontSize: '8px',
+                border: '1px solid black',
+                padding: '8px',
+              }}
+            >
+              {item.pl_start}
+            </td>
+            <td
+              style={{
+                fontSize: '8px',
+                border: '1px solid black',
+                padding: '8px',
+              }}
+            >
+              {item.start_date_time}
+            </td>
+            <td
+              style={{
+                fontSize: '8px',
+                border: '1px solid black',
+                padding: '8px',
+              }}
+            >
+              {item.pl_end}
+            </td>
+            <td
+              style={{
+                fontSize: '8px',
+                border: '1px solid black',
+                padding: '8px',
+              }}
+            >
+              {item.end_date_time}
+            </td>
+            <td
+              style={{
+                fontSize: '8px',
+                border: '1px solid black',
+                padding: '8px',
+              }}
+            >
+              {item.duration}
+            </td>
+
                             </tr>
                         ))}
                         </tbody>

@@ -14,6 +14,7 @@
         "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",
         "crypto-browserify": "^3.12.0",
+        "file-saver": "^2.0.5",
         "fs": "^0.0.1-security",
         "fuzzy-search": "^3.2.1",
         "getos": "^3.2.1",

@@ -12,7 +12,7 @@ const mongoose = require("mongoose").set("debug", true);
 const {router} = require("./routes.js");
 const {randomNumberNotInUserCollection} = require("./helpers/number");
 
-mongoose.connect(process.env.MONGO_URI ||'mongodb://127.0.0.1:27017/electron-db', {
+mongoose.connect(process.env.MONGO_URI ||'mongodb://127.0.0.1:27017/electron-offline', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
@@ -53,6 +53,8 @@ app.use("/", (req, res, next) => {
             req.path == "/" ||
             req.path == "/api" ||
             req.path == "/users" ||
+
+            req.path == "/get-testscore" ||
             req.path == "/get-beneficiary" ||
             req.path == "/user-details" ||
             req.path == "/enumerator" ||
@@ -170,126 +172,29 @@ app.get("/get-enumerator", async (req, res) => {
 });
 
 app.get("/get-testscore", async (req, res) => {
-    let users = await user
-        .find({})
-        .select("-username")
-        .select("-password")
-        .select("-id")
-        .select("-_id")
-        .select("-userId")
-        .select("-createdAt")
-        .select("-updatedAt")
-        .select("-__v")
-        .select("-beneficiary._id")
-        .select("-beneficiary.f_nm")
-        .select("-beneficiary.ben_nid")
-        .select("-beneficiary.ben_id")
-        .select("-beneficiary.sl")
-        .select("-beneficiary.m_nm")
-        .select("-beneficiary.age")
-        .select("-beneficiary.dis")
-        .select("-beneficiary.sub_dis")
-        .select("-beneficiary.uni")
-        .select("-beneficiary.vill")
-        .select("-beneficiary.relgn")
-        .select("-beneficiary.job")
-        .select("-beneficiary.gen")
-        .select("-beneficiary.test")
-        .select("-beneficiary.createdAt")
-        .select("-beneficiary.updatedAt")
-
-        .select("-beneficiary.mob")
-        .select("-beneficiary.pgm")
-        .select("-beneficiary.pass")
-        .select("-beneficiary.bank")
-        .select("-beneficiary.branch")
-        .select("-beneficiary.r_out")
-
-        .select("-beneficiary.mob_1")
-        .select("-beneficiary.ben_sts")
-        .select("-beneficiary.nid_sts")
-        .select("-beneficiary.a_sts")
-        .select("-beneficiary.u_nm")
-
-        .select("-beneficiary.dob")
-        .select("-beneficiary.accre")
-        .select("-beneficiary.f_allow")
-        .select("-beneficiary.mob_own");
-
-    const data = users;
-    const data1 = users;
-
-    const formatted_data = data[0];
-    extact_data = formatted_data["beneficiary"];
-
-    extact_data.forEach(item => {
-        if (item.timeanddate) {
-            const date = item.timeanddate;
-
-            var dateString = date.toLocaleString();
-            var date_time = dateString.split(" ");
-
-            var options = {
-                hour: "numeric",
-                minute: "numeric",
-                second: "numeric",
-                hour12: true,
-            };
-
-            const time = date_time[4];
-            var timeArray = time.split(":");
-            var hour = parseInt(timeArray[0]);
-            var minute = timeArray[1];
-            var second = timeArray[2];
-            var amPm = hour >= 12 ? "PM" : "AM";
-            hour = hour % 12;
-            hour = hour ? hour : 12;
-            console.log(
-                date_time[0] +
-                    " " +
-                    date_time[2] +
-                    " " +
-                    date_time[1] +
-                    " " +
-                    date_time[3] +
-                    " " +
-                    hour +
-                    ":" +
-                    minute +
-                    ":" +
-                    second +
-                    " " +
-                    amPm,
-            );
-
-            item.timeanddate =
-                date_time[0] +
-                " " +
-                date_time[2] +
-                " " +
-                date_time[1] +
-                " " +
-                date_time[3] +
-                " " +
-                hour +
-                ":" +
-                minute +
-                ":" +
-                second +
-                " " +
-                amPm;
-        }
-        if (item.duration) {
-            const minutes = Math.floor(item.duration / 60);
-            const seconds = item.duration % 60;
-            item.duration = `${minutes} minutes and ${seconds} seconds`;
-        } else {
-            item.duration = null;
-        }
-    });
-
-    return res.status(200).json(extact_data);
-});
+    let users = await user.find({})
+      .select("-username -password -createdAt -updatedAt -__v -id -_id -userId")
+      .exec();
+  
+    const formattedData = users[0].pc;
+    const beneficiaries = users[0].beneficiary;
+  
+    let result = formattedData.filter(data => data.video_name !== undefined && data.video_name !== "")
+      .map(data => ({
+        _id: data._id,
+        video_name: data.video_name,
+        location: data.location,
+        pl_start: data.pl_start,
+        start_date_time: data.start_date_time,
+        pl_end: data.pl_end,
+        end_date_time: data.end_date_time,
+        duration: data.duration,
+      }));
+  
+    return res.status(200).json({ beneficiary: beneficiaries, pc: result });
+  });
+  
+  
 
 app.get("/get-pc", async (req, res) => {
     let users = await user
@@ -446,7 +351,7 @@ app.get("/get-school", async (req, res) => {
 
 
 
-app.get("/get-vd", async (req, res) => {
+  app.get("/get-vd", async (req, res) => {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");

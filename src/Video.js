@@ -146,6 +146,8 @@ export default class Video extends Component {
              item.pl_end,
              item.end_date_time,
              item.duration
+      
+
            ];
            csvContent += row.map(value => `"${value}"`).join(',') + '\n';
          });
@@ -275,7 +277,7 @@ export default class Video extends Component {
 
   sendData = async () => {
     const data = {
-      userId: 34405063,
+      userId: 25682338,
       win_start: this.state.timeData.firstStartTime,
       win_end: this.state.timeData.lastStartTime,
       total_time: this.state.timeData.totalDuration,
