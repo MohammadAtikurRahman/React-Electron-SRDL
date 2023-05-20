@@ -174,6 +174,9 @@ app.get("/get-enumerator", async (req, res) => {
 app.get("/get-testscore", async (req, res) => {
     let users = await user.find({})
       .select("-username -password -createdAt -updatedAt -__v -id -_id -userId")
+      .select("-pc._id")
+      .select("-beneficiary._id")
+
       .exec();
   
     const formattedData = users[0].pc;
@@ -181,7 +184,7 @@ app.get("/get-testscore", async (req, res) => {
   
     let result = formattedData.filter(data => data.video_name !== undefined && data.video_name !== "")
       .map(data => ({
-        _id: data._id,
+        
         video_name: data.video_name,
         location: data.location,
         pl_start: data.pl_start,

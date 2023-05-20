@@ -123,48 +123,67 @@ export default class Video extends Component {
   };
 
  
-  downloadCSV = () => {
-     axios
-       .get('http://localhost:2000/get-vd')
-       .then((response) => {
-         const { data } = response;
-         let csvContent = 'data:text/csv;charset=utf-8,';
-   
-         // Define custom column names
-         const columnNames = ['Video Name', 'Location', 'Player Time', 'PC Time Start', 'Player End Time', 'PC End Time', 'Total Time'];
-   
-         // Add column headers
-         csvContent += columnNames.map(header => `"${header}"`).join(',') + '\n';
-   
-         // Add data rows
-         data.forEach((item) => {
-           const row = [
-             item.video_name,
-             item.location,
-             item.pl_start,
-             item.start_date_time,
-             item.pl_end,
-             item.end_date_time,
-             item.duration
-      
 
-           ];
-           csvContent += row.map(value => `"${value}"`).join(',') + '\n';
-         });
-   
-         // Create a download link
-         const encodedUri = encodeURI(csvContent);
-         const link = document.createElement('a');
-         link.setAttribute('href', encodedUri);
-         link.setAttribute('download', 'data.csv');
-         document.body.appendChild(link);
-         link.click();
-         document.body.removeChild(link);
-       })
-       .catch((error) => {
-         console.error('Error downloading CSV:', error);
-       });
-   };
+  downloadCSV = () => {
+    axios
+      .get('http://localhost:2000/get-testscore')
+      .then((response) => {
+        const { data } = response;
+        let csvContent = 'data:text/csv;charset=utf-8,';
+  
+        // Add beneficiary data rows
+        const beneficiaryHeaders = ['User Name', 'EIIN', 'PC ID', 'Lab ID'];
+        csvContent += beneficiaryHeaders.join(',') + '\r\n';
+        data.beneficiary.forEach((item) => {
+          const userName = `"${(item.m_nm || '').replace(/"/g, '""')}"`;
+          const eiin = item.beneficiaryId;
+          const pcId = item.u_nm;
+          const labId = item.f_nm;
+          const row = [userName, eiin, pcId, labId];
+          csvContent += row.join(',') + '\r\n';
+        });
+  
+        // Add column headers for pc data
+        const pcHeaders = ['Video Name', 'Location', 'Player Time','PC Time Start','Player End Time','PC End Time','Total Time'];
+        csvContent += pcHeaders.join(',') + '\r\n';
+  
+        // Filter and add unique pc data rows
+        const uniquePCData = new Set();
+        data.pc.forEach((item) => {
+          if (!uniquePCData.has(item.video_name)) {
+            const video_name = `"${(item.video_name || '').replace(/"/g, '""')}"`;
+            const location = `"${(item.location || '').replace(/"/g, '""')}"`;
+            const pl_start = `"${(item.pl_start || '').replace(/"/g, '""')}"`;
+            const start_date_time = `"${(item.start_date_time || '').replace(/"/g, '""')}"`;
+            const pl_end = `"${(item.pl_end || '').replace(/"/g, '""')}"`;
+            const end_date_time = `"${(item.end_date_time || '').replace(/"/g, '""')}"`;
+            const duration = `"${(item.duration || '').replace(/"/g, '""')}"`;
+  
+            const row = [video_name, location,pl_start,start_date_time,pl_end,end_date_time,duration];
+            csvContent += row.join(',') + '\r\n';
+  
+            uniquePCData.add(item.video_name);
+          }
+        });
+  
+        // Extract school name for file renaming
+        const schoolName = data.beneficiary[0].name;
+        const fileName = `video_${schoolName}.csv`;
+  
+        // Create a download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      })
+      .catch((error) => {
+        console.error('Error downloading CSV:', error);
+      });
+  };
+  
 
 
 
