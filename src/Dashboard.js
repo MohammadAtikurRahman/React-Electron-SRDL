@@ -317,31 +317,29 @@ export default class Dashboard extends Component {
   };
   
 
-
   downloadCSV = () => {
     axios
       .get('http://localhost:2000/get-school')
       .then((response) => {
         const { data } = response;
         let csvContent = 'data:text/csv;charset=utf-8,';
-
+  
         // Add beneficiary data rows
-        const beneficiaryHeaders = ['User Name', 'EIIN', 'School Name', 'PC ID', 'Lab ID'];
+        const beneficiaryHeaders = ['User Name', 'EIIN', 'PC ID', 'Lab ID'];
         csvContent += beneficiaryHeaders.join(',') + '\r\n';
         data.beneficiary.forEach((item) => {
           const userName = `"${(item.m_nm || '').replace(/"/g, '""')}"`;
           const eiin = item.beneficiaryId;
-          const schoolName = `"${(item.name || '').replace(/"/g, '""')}"`;
           const pcId = item.u_nm;
           const labId = item.f_nm;
-          const row = [userName, eiin, schoolName, pcId, labId];
+          const row = [userName, eiin, pcId, labId];
           csvContent += row.join(',') + '\r\n';
         });
-
+  
         // Add column headers for pc data
         const pcHeaders = ['Start Time', 'End Time', 'Total Time'];
         csvContent += pcHeaders.join(',') + '\r\n';
-
+  
         // Add pc data rows
         data.pc.forEach((item) => {
           const startTime = `"${(item.earliestStart || '').replace(/"/g, '""')}"`;
@@ -350,12 +348,16 @@ export default class Dashboard extends Component {
           const row = [startTime, endTime, totalTime];
           csvContent += row.join(',') + '\r\n';
         });
-
+  
+        // Extract school name for file renaming
+        const schoolName = data.beneficiary[0].name;
+        const fileName = `pc_${schoolName}.csv`;
+  
         // Create a download link
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
-        link.setAttribute('download', 'data.csv');
+        link.setAttribute('download', fileName);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -364,6 +366,9 @@ export default class Dashboard extends Component {
         console.error('Error downloading CSV:', error);
       });
   };
+  
+  
+  
 
   
   onChange = (e) => {
