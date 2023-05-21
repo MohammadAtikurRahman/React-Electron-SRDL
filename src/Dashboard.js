@@ -317,6 +317,7 @@ export default class Dashboard extends Component {
   };
   
 
+
   downloadCSV = () => {
     axios
       .get('http://localhost:2000/get-school')
@@ -325,14 +326,16 @@ export default class Dashboard extends Component {
         let csvContent = 'data:text/csv;charset=utf-8,';
   
         // Add beneficiary data rows
-        const beneficiaryHeaders = ['User Name', 'EIIN', 'PC ID', 'Lab ID'];
+        const beneficiaryHeaders = ['User Name', 'EIIN','School Name', 'PC ID', 'Lab ID'];
         csvContent += beneficiaryHeaders.join(',') + '\r\n';
         data.beneficiary.forEach((item) => {
           const userName = `"${(item.m_nm || '').replace(/"/g, '""')}"`;
           const eiin = item.beneficiaryId;
+          const name = item.name;
+
           const pcId = item.u_nm;
           const labId = item.f_nm;
-          const row = [userName, eiin, pcId, labId];
+          const row = [userName, eiin,name, pcId, labId];
           csvContent += row.join(',') + '\r\n';
         });
   
@@ -366,7 +369,6 @@ export default class Dashboard extends Component {
         console.error('Error downloading CSV:', error);
       });
   };
-  
   
   
 
