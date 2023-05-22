@@ -131,22 +131,24 @@ export default class Video extends Component {
         const { data } = response;
         let csvContent = 'data:text/csv;charset=utf-8,';
   
+        // Add starting row for video information
+        csvContent += 'Video Information\r\n';
+  
         // Add beneficiary data rows
-        const beneficiaryHeaders = ['User Name', 'EIIN','School Name', 'PC ID', 'Lab ID'];
+        const beneficiaryHeaders = ['User Name', 'EIIN', 'School Name', 'PC ID', 'Lab ID'];
         csvContent += beneficiaryHeaders.join(',') + '\r\n';
         data.beneficiary.forEach((item) => {
           const userName = `"${(item.m_nm || '').replace(/"/g, '""')}"`;
           const eiin = item.beneficiaryId;
           const name = item.name;
-
           const pcId = item.u_nm;
           const labId = item.f_nm;
-          const row = [userName, eiin,name, pcId, labId];
+          const row = [userName, eiin, name, pcId, labId];
           csvContent += row.join(',') + '\r\n';
         });
   
         // Add column headers for pc data
-        const pcHeaders = ['Video Name', 'Location', 'Player Time','PC Time Start','Player End Time','PC End Time','Total Time'];
+        const pcHeaders = ['Video Name', 'Location', 'Player Time', 'PC Time Start', 'Player End Time', 'PC End Time', 'Total Time'];
         csvContent += pcHeaders.join(',') + '\r\n';
   
         // Filter and add unique pc data rows
@@ -161,7 +163,7 @@ export default class Video extends Component {
             const end_date_time = `"${(item.end_date_time || '').replace(/"/g, '""')}"`;
             const duration = `"${(item.duration || '').replace(/"/g, '""')}"`;
   
-            const row = [video_name, location,pl_start,start_date_time,pl_end,end_date_time,duration];
+            const row = [video_name, location, pl_start, start_date_time, pl_end, end_date_time, duration];
             csvContent += row.join(',') + '\r\n';
   
             uniquePCData.add(item.video_name);
@@ -185,6 +187,7 @@ export default class Video extends Component {
         console.error('Error downloading CSV:', error);
       });
   };
+  
   
 
 
