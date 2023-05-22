@@ -125,48 +125,49 @@ export default class Video extends Component {
  
 
   downloadCSV = () => {
+    function createCombinedRow(bData, pcData = {}) {
+      // Combine beneficiary and pc data into a single row
+      const userName = `"${(bData.m_nm || '').replace(/"/g, '""')}"`;
+      const eiin = bData.beneficiaryId;
+      const schoolName = bData.name;
+      const pcId = bData.u_nm;
+      const labId = bData.f_nm;
+      const videoName = `"${(pcData.video_name || '').replace(/"/g, '""')}"`;
+      const location = `"${(pcData.location || '').replace(/"/g, '""')}"`;
+      const playerTimeStart = `"${(pcData.pl_start || '').replace(/"/g, '""')}"`;
+      const pcTimeStart = `"${(pcData.start_date_time || '').replace(/"/g, '""')}"`;
+      const playerEndTime = `"${(pcData.pl_end || '').replace(/"/g, '""')}"`;
+      const pcEndTime = `"${(pcData.end_date_time || '').replace(/"/g, '""')}"`;
+      const totalTime = `"${(pcData.duration || '').replace(/"/g, '""')}"`;
+  
+      return [videoName, location, playerTimeStart, pcTimeStart, playerEndTime, pcEndTime, totalTime, userName, eiin, schoolName, pcId, labId];
+    }
+  
     axios
       .get('http://localhost:2000/get-testscore')
       .then((response) => {
         const { data } = response;
         let csvContent = 'data:text/csv;charset=utf-8,';
   
-        // Add starting row for video information
-        csvContent += 'Video Information\r\n';
+        // Combine headers
+        const headers = ['Video Name', 'Location', 'Player Time', 'PC Time Start', 'Player End Time', 'PC End Time', 'Total Time', 'User Name', 'EIIN', 'School Name', 'PC ID', 'Lab ID'];
+        csvContent += headers.join(',') + '\r\n';
   
-        // Add beneficiary data rows
-        const beneficiaryHeaders = ['User Name', 'EIIN', 'School Name', 'PC ID', 'Lab ID'];
-        csvContent += beneficiaryHeaders.join(',') + '\r\n';
-        data.beneficiary.forEach((item) => {
-          const userName = `"${(item.m_nm || '').replace(/"/g, '""')}"`;
-          const eiin = item.beneficiaryId;
-          const name = item.name;
-          const pcId = item.u_nm;
-          const labId = item.f_nm;
-          const row = [userName, eiin, name, pcId, labId];
-          csvContent += row.join(',') + '\r\n';
-        });
+        // Map beneficiaries with pc data
+        data.beneficiary.forEach((bData) => {
+          // Find matching pc data for each beneficiary
+          const matchingPcData = data.pc.filter((pcData) => bData.id === pcData.beneficiaryId);
   
-        // Add column headers for pc data
-        const pcHeaders = ['Video Name', 'Location', 'Player Time', 'PC Time Start', 'Player End Time', 'PC End Time', 'Total Time'];
-        csvContent += pcHeaders.join(',') + '\r\n';
-  
-        // Filter and add unique pc data rows
-        const uniquePCData = new Set();
-        data.pc.forEach((item) => {
-          if (!uniquePCData.has(item.video_name)) {
-            const video_name = `"${(item.video_name || '').replace(/"/g, '""')}"`;
-            const location = `"${(item.location || '').replace(/"/g, '""')}"`;
-            const pl_start = `"${(item.pl_start || '').replace(/"/g, '""')}"`;
-            const start_date_time = `"${(item.start_date_time || '').replace(/"/g, '""')}"`;
-            const pl_end = `"${(item.pl_end || '').replace(/"/g, '""')}"`;
-            const end_date_time = `"${(item.end_date_time || '').replace(/"/g, '""')}"`;
-            const duration = `"${(item.duration || '').replace(/"/g, '""')}"`;
-  
-            const row = [video_name, location, pl_start, start_date_time, pl_end, end_date_time, duration];
+          // If matching pc data is found, create a row for each
+          if (matchingPcData.length) {
+            matchingPcData.forEach((pcData) => {
+              const row = createCombinedRow(bData, pcData);
+              csvContent += row.join(',') + '\r\n';
+            });
+          } else {
+            // If no matching pc data is found, create a row with just beneficiary data
+            const row = createCombinedRow(bData);
             csvContent += row.join(',') + '\r\n';
-  
-            uniquePCData.add(item.video_name);
           }
         });
   
@@ -188,6 +189,7 @@ export default class Video extends Component {
       });
   };
   
+
   
 
 
