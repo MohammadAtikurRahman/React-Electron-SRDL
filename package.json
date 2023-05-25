@@ -37,15 +37,15 @@
     },
     "main": "public/electron.js",
     "scripts": {
-        "start": "cross-env BROWSER=none react-scripts start",
-        "start-electron": "node start-electron.js",
+        "start": "concurrently \"npm run start-electron\" \"npm run start-react\"",
+        "start-react": "cross-env BROWSER=none react-scripts start",
+        "start-electron": "electron .",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "electron-start": "electron .",
         "electron-pack": "electron-builder --dir",
         "electron-build": "electron-builder"
-    },
+      },
     "eslintConfig": {
         "extends": "react-app"
     },

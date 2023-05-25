@@ -1,0 +1,9 @@
+Unknown command: "start;"
+
+Did you mean one of these?
+    npm star # Mark your favorite packages
+    npm stars # View packages marked as favorites
+    npm start # Start a package
+
+To see a list of supported npm commands, run:
+  npm help
