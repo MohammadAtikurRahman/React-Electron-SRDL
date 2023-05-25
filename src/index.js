@@ -12,6 +12,7 @@ import Video from "./Video";
 import "./Login.css";
 import File from "./File";
 import Allcontent from "./Allcontent.js";
+import Userid from "./Userid";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -26,6 +27,7 @@ ReactDOM.render(
       <Route path="/file" element={<File />} />
       <Route path="/previous" element={<Previous />} />
       <Route path="/allcontent" element={<Allcontent />} />
+      <Route path="/userid" element={<Userid />} />
 
       <Route path="/profile/:id" element={<Profile />} />
     </Routes>

@@ -18,6 +18,12 @@ const {
     saveMultiScore,
 } = require("./controllers/beneficiaryController");
 
+const {
+    findUserid,
+
+} = require("./controllers/enumeratorController");
+
+
 router.get("/enumerator/:id", getEnumerator);
 
 router.get("/beneficiary", getBeneficiaries);
@@ -43,5 +49,8 @@ router.post("/ben-score", saveTestScore);
 
 router.post("/pcinfo",savePcInfo)
 router.post("/videoinfo",saveVideoInfo)
+router.get('/userid',findUserid)
+
+
 
 module.exports = {router};

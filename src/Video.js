@@ -28,6 +28,7 @@ import {
   InputBase,
 } from "@material-ui/core";
 import { Search as SearchIcon } from "@material-ui/icons";
+import Userid from "./Userid";
 
 const axios = require("axios");
 const baseUrl = process.env.REACT_APP_URL;
@@ -303,7 +304,7 @@ export default class Video extends Component {
 
   sendData = async () => {
     const data = {
-      userId: 25682338,
+      userId:  <Userid />,
       win_start: this.state.timeData.firstStartTime,
       win_end: this.state.timeData.lastStartTime,
       total_time: this.state.timeData.totalDuration,

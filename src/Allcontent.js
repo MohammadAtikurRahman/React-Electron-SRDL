@@ -11,6 +11,7 @@ import {
 } from "@material-ui/core";
 import { Pagination } from "@material-ui/lab";
 import swal from "sweetalert";
+import Userid from "./Userid";
 
 import { Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
@@ -223,7 +224,7 @@ export default class Allcontent extends Component {
   
   sendData = async () => {
     const data = {
-      userId: 25682338,
+      userId:  <Userid />,
       win_start: this.state.timeData.firstStartTime,
       win_end: this.state.timeData.lastStartTime,
       total_time: this.state.timeData.totalDuration,

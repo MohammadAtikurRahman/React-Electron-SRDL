@@ -11,6 +11,7 @@ import {
 } from "@material-ui/core";
 import { Pagination } from "@material-ui/lab";
 import swal from "sweetalert";
+import Userid from "./Userid";
 
 import { Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
@@ -708,22 +709,7 @@ export default class Dashboard extends Component {
                     Pc Usages
                   </Button>
                 )}
-                {/* <Button
-                  className="button_style"
-                  variant="contained"
-                  size="small"
-                  onClick={this.logOut}
-                >
-                  <MaterialLink
-                    style={{
-                      textDecoration: "none",
-                      color: "black",
-                    }}
-                    href="/"
-                  >
-                    <b> Logout </b>
-                  </MaterialLink>
-                </Button> */}
+               
               </div>
             </div>
           </Toolbar>

@@ -1,5 +1,6 @@
 const User = require("../model/user");
 const jwt = require("jsonwebtoken");
+var userid
 
 async function getEnumerator(req, res) {
     const {id} = req.params;
@@ -13,6 +14,11 @@ async function getToken(data) {
         "shhhhh11111",
         {expiresIn: "1d"},
     );
+
+    // console.log("token",token)
+    let decoded = jwt.decode(token);
+    userid = decoded.userId
+    console.log("userid",userid)
     return token;
 }
 
@@ -36,4 +42,14 @@ async function userLogin(req, res) {
     return res.status(500).json({message: "Something went wrong."});
 }
 
-module.exports = {getEnumerator, userLogin};
+async function findUserid(req,res){
+    console.log("userid",userid);
+   res.send({userid});
+ 
+ }
+
+module.exports = {getEnumerator,
+    findUserid,
+    
+    
+    userLogin};
