@@ -80,7 +80,7 @@ export function EditBeneficiary(props) {
             onClose={handleEditModalClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
-            style={{ zIndex: "9999"}}
+            style={{ zIndex: "99999"}}
 
             maxWidth="xs">
             <DialogContent style={{ padding: "40px" }}>
