@@ -33,7 +33,11 @@ import { Search as SearchIcon } from "@material-ui/icons";
 const axios = require("axios");
 const baseUrl = process.env.REACT_APP_URL;
 
+
 export default class Dashboard extends Component {
+
+
+  
   constructor() {
     super();
     this.state = {
@@ -43,6 +47,7 @@ export default class Dashboard extends Component {
       id: "",
       lastData: {},
       ttime: {},
+      user: null,
 
       name: "",
       f_nm: "",
@@ -219,12 +224,36 @@ export default class Dashboard extends Component {
 
     // After setting timeData, send the data to the server
     this.sendPcData(this.state.timeData);
+
+
+
+
+
+
+
+
+
+
+
+    fetch("http://localhost:2000/userid")
+    .then((response) => response.json())
+    .then((data) => this.setState({ user: data }));
+
+
+
+
+
+
   };
 
-  
+
   sendData = async () => {
+
+    const userid = this.state.user ? this.state.user.userid : null;
+
+
     const data = {
-      userId: 25682338,
+      userId: userid,
       win_start: this.state.timeData.firstStartTime,
       win_end: this.state.timeData.lastStartTime,
       total_time: this.state.timeData.totalDuration,
@@ -709,7 +738,7 @@ export default class Dashboard extends Component {
                     Pc Usages
                   </Button>
                 )}
-               
+
               </div>
             </div>
           </Toolbar>
@@ -905,6 +934,7 @@ export default class Dashboard extends Component {
           style={{ backgroundColor: "#ffff", marginTop: "22%" }}
           elevation={0}
         >
+
           <Toolbar>
             {/* <div>
               <Button variant="contained" color="primary" href="/video">
