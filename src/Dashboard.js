@@ -601,14 +601,14 @@ export default class Dashboard extends Component {
                   ?.reverse()
                   .map((row, index) => (
                     <TableRow key={index}>
-                      <TableCell align="center">
-                        {lastData.earliestStart}
-                      </TableCell>
+          <TableCell align="center">
+  {new Date(lastData.earliestStart).toLocaleString('en-GB', { hour12: true })}
+</TableCell>
 
-                      <TableCell align="center">
-                        {" "}
-                        {lastData.latestEnd}
-                      </TableCell>
+<TableCell align="center">
+  {new Date(lastData.latestEnd).toLocaleString('en-GB', { hour12: true })}
+</TableCell>
+
 
                       <TableCell align="center" component="th" scope="row">
                         {this.convertToHoursAndMinutes(ttime.total_time)}
@@ -629,7 +629,7 @@ export default class Dashboard extends Component {
           </TableContainer>
         </div>
 
-        <AppBar
+        {/* <AppBar
           position="static"
           style={{ backgroundColor: "#ffff", marginTop: "22%" }}
           elevation={0}
@@ -659,7 +659,7 @@ export default class Dashboard extends Component {
               </div>
             </div>
           </Toolbar>
-        </AppBar>
+        </AppBar> */}
       </div>
     );
   }

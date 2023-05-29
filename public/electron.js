@@ -14,6 +14,11 @@ function createWindow() {
     },
   });
 
+  win.on('close', (event) => {
+    event.preventDefault();
+    win.minimize();
+  });
+
   const loadURL = () => {
     win.loadURL(
       isDev
