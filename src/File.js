@@ -12,10 +12,12 @@ import {
   IconButton,
   InputBase,
 } from "@material-ui/core";
+
 const File = () => {
   const [data, setData] = useState([]);
   const [videoInfo, setVideoInfo] = useState([]);
   const [user, setUser] = useState(null);
+  const [showTable, setShowTable] = useState(false); // New state for table visibility
 
   useEffect(() => {
     fetchCSVData();
@@ -67,9 +69,12 @@ const File = () => {
       });
   };
 
+  const toggleTable = () => { // New function to toggle table visibility
+    setShowTable(prevShowTable => !prevShowTable);
+  };
+
   return (
     <div>
-      {/*<h2>CSV Viewer</h2>*/}
       <Button
         className="button_style"
         variant="contained"
@@ -79,12 +84,21 @@ const File = () => {
       >
         Refresh The Data
       </Button>
+      <Button
+        className="button_style"
+        variant="contained"
+        color="secondary"
+        size="small"
+        onClick={toggleTable}
+      >
+        {showTable ? "Hide Table" : "Show Table"}
+      </Button>
       <br />
       <br />
       <br />
       <br /> <br />
       <div style={{ overflowX: "hidden", maxWidth: "97.6%" }}>
-        {data.length > 0 && (
+        {showTable && data.length > 0 && (
           <table
             style={{
               tableLayout: "fixed",
@@ -95,137 +109,25 @@ const File = () => {
           >
             <thead>
               <tr>
-                <th
-                  style={{
-                    fontSize: "13px",
-                    border: "1px solid black", // Apply border to table header cells
-                    padding: "8px",
-                  }}
-                >
-                  Video Name
-                </th>
-                <th
-                  style={{
-                    fontSize: "13px",
-                    border: "1px solid black",
-                    padding: "8px",
-                  }}
-                >
-                  File Location
-                </th>
-                <th
-                  style={{
-                    fontSize: "13px",
-                    border: "1px solid black",
-                    padding: "8px",
-                  }}
-                >
-                  Player Starting
-                </th>
-                <th
-                  style={{
-                    fontSize: "13px",
-                    border: "1px solid black",
-                    padding: "8px",
-                  }}
-                >
-                  Start Video Time
-                </th>
-                <th
-                  style={{
-                    fontSize: "13px",
-                    border: "1px solid black",
-                    padding: "8px",
-                  }}
-                >
-                  Player Ending
-                </th>
-                <th
-                  style={{
-                    fontSize: "13px",
-                    border: "1px solid black",
-                    padding: "8px",
-                  }}
-                >
-                  End Video Time
-                </th>
-                <th
-                  style={{
-                    fontSize: "13px",
-                    border: "1px solid black",
-                    padding: "8px",
-                  }}
-                >
-                  Duration
-                </th>
+                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Video Name</th>
+                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>File Location</th>
+                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Player Starting</th>
+                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Start Video Time</th>
+                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Player Ending</th>
+                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>End Video Time</th>
+                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Duration</th>
               </tr>
             </thead>
             <tbody>
               {data.slice().reverse().map((item, index) => (
                 <tr key={index}>
-                  <td
-                    style={{
-                      fontSize: "10px",
-                      border: "1px solid black", // Apply border to table cells
-                      padding: "8px",
-                    }}
-                  >
-                    {item.video_name}
-                  </td>
-                  <td
-                    style={{
-                      fontSize: "9px",
-                      border: "1px solid black",
-                      padding: "8px",
-                    }}
-                  >
-                    {item.location}
-                  </td>
-                  <td
-                    style={{
-                      fontSize: "10px",
-                      border: "1px solid black",
-                      padding: "8px",
-                    }}
-                  >
-                    {item.pl_start}
-                  </td>
-                  <td
-                    style={{
-                      fontSize: "10px",
-                      border: "1px solid black",
-                      padding: "8px",
-                    }}
-                  >
-                    {item.start_date_time}
-                  </td>
-                  <td
-                    style={{
-                      fontSize: "10px",
-                      border: "1px solid black",
-                      padding: "8px",
-                    }}
-                  >
-                    {item.pl_end}
-                  </td>
-                  <td
-                    style={{
-                      fontSize: "10px",
-                      border: "1px solid black",
-                      padding: "8px",
-                    }}
-                  >
-                    {item.end_date_time}
-                  </td>
-                  <td
-                    style={{
-                      fontSize: "10px",
-                      border: "1px solid black",
-                      padding: "8px",
-                    }}
-                  >
-                    {item.duration}
-                  </td>
+                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.video_name}</td>
+                  <td style={{fontSize: "9px",border: "1px solid black",padding: "8px"}}>{item.location}</td>
+                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.pl_start}</td>
+                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.start_date_time}</td>
+                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.pl_end}</td>
+                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.end_date_time}</td>
+                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.duration}</td>
                 </tr>
               ))}
             </tbody>
