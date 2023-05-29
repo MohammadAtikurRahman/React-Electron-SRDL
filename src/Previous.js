@@ -122,7 +122,7 @@ class Previous extends Component {
           onClick={this.toggleShowTable}
           style={{ width: "200px", marginRight: "10px" }} // adjust the value as needed
         >
-          {currentMonth}
+          {currentMonth}'s PC Data
         </Button>
 
         <Button
@@ -131,7 +131,7 @@ class Previous extends Component {
           onClick={this.downloadCSV}
           style={{ width: "200px" }} // adjust the value as needed
         >
-          Download
+          Download  {currentMonth} Data
         </Button>
 
         {showTable && (
