@@ -573,7 +573,7 @@ export default class Allcontent extends Component {
         <div>
           <TableContainer>
             <Table aria-label="simple table">
-              <TableHead>
+              {/* <TableHead>
                 <TableRow>
                   <TableCell style={{ textAlign: "center", paddingLeft: "2%" }}>
                     <b>Start Date & Time</b>
@@ -589,7 +589,7 @@ export default class Allcontent extends Component {
                     <b>Duration</b>
                   </TableCell>
                 </TableRow>
-              </TableHead>
+              </TableHead> */}
 {/* 
               <TableBody>
                 {this.state?.filteredBeneficiary?.map((row, index) => (
@@ -597,8 +597,12 @@ export default class Allcontent extends Component {
                 ))}
               </TableBody> */}
             </Table>
+  
+           <div style={{  padding: "30px"}}>
 
-            <Previous />
+           <Previous />
+
+            </div>
 
             {/* <Pagination
               count={this.state.pages}
