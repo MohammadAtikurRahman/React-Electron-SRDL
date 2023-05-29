@@ -369,8 +369,12 @@ export default class Dashboard extends Component {
         });
 
         // Extract school name for file renaming
+
         const schoolName = data.beneficiary[0].name;
-        const fileName = `pc_${schoolName}.csv`;
+        const eiin = data.beneficiary[0].beneficiaryId;
+        const pc_id = data.beneficiary[0].f_nm;
+
+        const fileName = `pc_${schoolName}_ein_${eiin}_Pc_Id_${pc_id}.csv`;
 
         // Create a download link
         const encodedUri = encodeURI(csvContent);
@@ -466,10 +470,14 @@ export default class Dashboard extends Component {
             getBeneficiaries={this.getBeneficiaries}
           />
         )}
-        <AppBar position="static" style={{ backgroundColor: "#1F8A70" }}>
+
+  
+
+        <AppBar position="static" style={{ backgroundColor: "#1F8A70" }}             elevation={0}
+     >
           <Toolbar>
             {this.state?.filteredBeneficiary?.reverse().map((row, index) => (
-              <div key={index}>
+              <div key={index}  style={{ display: "flex"}}>
                 <Button variant="contained" color="primary" href="/video">
                   PC INFO
                 </Button>
@@ -478,6 +486,8 @@ export default class Dashboard extends Component {
                   {" "}
                   {row.m_nm}{" "}
                 </Button>
+                &nbsp; &nbsp;
+                <h5 style={{ paddingTop: "10px"}}>PC Dashboard</h5>
               </div>
             ))}
             <div style={{ flexGrow: 1 }} />
@@ -601,14 +611,18 @@ export default class Dashboard extends Component {
                   ?.reverse()
                   .map((row, index) => (
                     <TableRow key={index}>
-          <TableCell align="center">
-  {new Date(lastData.earliestStart).toLocaleString('en-GB', { hour12: true })}
-</TableCell>
+                      <TableCell align="center">
+                        {new Date(lastData.earliestStart).toLocaleString(
+                          "en-GB",
+                          { hour12: true }
+                        )}
+                      </TableCell>
 
-<TableCell align="center">
-  {new Date(lastData.latestEnd).toLocaleString('en-GB', { hour12: true })}
-</TableCell>
-
+                      <TableCell align="center">
+                        {new Date(lastData.latestEnd).toLocaleString("en-GB", {
+                          hour12: true,
+                        })}
+                      </TableCell>
 
                       <TableCell align="center" component="th" scope="row">
                         {this.convertToHoursAndMinutes(ttime.total_time)}

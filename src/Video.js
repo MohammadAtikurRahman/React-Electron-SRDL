@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import { Pagination } from "@material-ui/lab";
 import swal from "sweetalert";
-import File from "./File"
+import File from "./File";
 
 import { Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
@@ -114,86 +114,119 @@ export default class Video extends Component {
   }
   fetchData = () => {
     axios
-        .get('http://localhost:2000/get-vd')
-        .then((response) => {
-          this.setState({ data: response.data });
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-        });
+      .get("http://localhost:2000/get-vd")
+      .then((response) => {
+        this.setState({ data: response.data });
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
   };
-
- 
 
   downloadCSV = () => {
     function createCombinedRow(bData, pcData = {}) {
       // Combine beneficiary and pc data into a single row
-      const userName = `"${(bData.m_nm || '').replace(/"/g, '""')}"`;
+      const userName = `"${(bData.m_nm || "").replace(/"/g, '""')}"`;
       const eiin = bData.beneficiaryId;
       const schoolName = bData.name;
       const pcId = bData.u_nm;
       const labId = bData.f_nm;
-      const videoName = `"${(pcData.video_name || '').replace(/"/g, '""')}"`;
-      const location = `"${(pcData.location || '').replace(/"/g, '""')}"`;
-      const playerTimeStart = `"${(pcData.pl_start || '').replace(/"/g, '""')}"`;
-      const pcTimeStart = `"${(pcData.start_date_time || '').replace(/"/g, '""')}"`;
-      const playerEndTime = `"${(pcData.pl_end || '').replace(/"/g, '""')}"`;
-      const pcEndTime = `"${(pcData.end_date_time || '').replace(/"/g, '""')}"`;
-      const totalTime = `"${(pcData.duration || '').replace(/"/g, '""')}"`;
-  
-      return [videoName, location, playerTimeStart, pcTimeStart, playerEndTime, pcEndTime, totalTime, userName, eiin, schoolName, pcId, labId];
+      const videoName = `"${(pcData.video_name || "").replace(/"/g, '""')}"`;
+      const location = `"${(pcData.location || "").replace(/"/g, '""')}"`;
+      const playerTimeStart = `"${(pcData.pl_start || "").replace(
+        /"/g,
+        '""'
+      )}"`;
+      const pcTimeStart = `"${(pcData.start_date_time || "").replace(
+        /"/g,
+        '""'
+      )}"`;
+      const playerEndTime = `"${(pcData.pl_end || "").replace(/"/g, '""')}"`;
+      const pcEndTime = `"${(pcData.end_date_time || "").replace(/"/g, '""')}"`;
+      const totalTime = `"${(pcData.duration || "").replace(/"/g, '""')}"`;
+
+      return [
+        videoName,
+        location,
+        playerTimeStart,
+        pcTimeStart,
+        playerEndTime,
+        pcEndTime,
+        totalTime,
+        userName,
+        eiin,
+        schoolName,
+        pcId,
+        labId,
+      ];
     }
-  
+
     axios
-      .get('http://localhost:2000/get-testscore')
+      .get("http://localhost:2000/get-testscore")
       .then((response) => {
         const { data } = response;
-        let csvContent = 'data:text/csv;charset=utf-8,';
-  
+        let csvContent = "data:text/csv;charset=utf-8,";
+
         // Combine headers
-        const headers = ['Video Name', 'Location', 'Player Time', 'PC Time Start', 'Player End Time', 'PC End Time', 'Total Time', 'User Name', 'EIIN', 'School Name', 'PC ID', 'Lab ID'];
-        csvContent += headers.join(',') + '\r\n';
-  
+        const headers = [
+          "Video Name",
+          "Location",
+          "Player Time",
+          "PC Time Start",
+          "Player End Time",
+          "PC End Time",
+          "Total Time",
+          "User Name",
+          "EIIN",
+          "School Name",
+          "PC ID",
+          "Lab ID",
+        ];
+        csvContent += headers.join(",") + "\r\n";
+
         // Map beneficiaries with pc data
         data.beneficiary.forEach((bData) => {
           // Find matching pc data for each beneficiary
-          const matchingPcData = data.pc.filter((pcData) => bData.id === pcData.beneficiaryId);
-  
+          const matchingPcData = data.pc.filter(
+            (pcData) => bData.id === pcData.beneficiaryId
+          );
+
           // If matching pc data is found, create a row for each
           if (matchingPcData.length) {
             matchingPcData.forEach((pcData) => {
               const row = createCombinedRow(bData, pcData);
-              csvContent += row.join(',') + '\r\n';
+              csvContent += row.join(",") + "\r\n";
             });
           } else {
             // If no matching pc data is found, create a row with just beneficiary data
             const row = createCombinedRow(bData);
-            csvContent += row.join(',') + '\r\n';
+            csvContent += row.join(",") + "\r\n";
           }
         });
-  
+
         // Extract school name for file renaming
+        // const schoolName = data.beneficiary[0].name;
+        // const fileName = `video_${schoolName}.csv`;
+
         const schoolName = data.beneficiary[0].name;
-        const fileName = `video_${schoolName}.csv`;
-  
+        const eiin = data.beneficiary[0].beneficiaryId;
+        const pc_id = data.beneficiary[0].f_nm;
+
+        const fileName = `video_${schoolName}_ein_${eiin}_Pc_Id_${pc_id}.csv`; 
+
         // Create a download link
         const encodedUri = encodeURI(csvContent);
-        const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', fileName);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", fileName);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       })
       .catch((error) => {
-        console.error('Error downloading CSV:', error);
+        console.error("Error downloading CSV:", error);
       });
   };
-  
-
-  
-
-
 
   handleClose() {
     this.setState({ anchorEl: null });
@@ -224,15 +257,17 @@ export default class Video extends Component {
       console.error("Error:", error);
     }
   };
-   convertToHoursAndMinutes(totalTime) {
+  convertToHoursAndMinutes(totalTime) {
     const hours = Math.floor(totalTime / 60);
     const minutes = totalTime % 60;
     if (hours > 0) {
-      return `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes > 1 ? 's' : ''}`;
+      return `${hours} hour${hours > 1 ? "s" : ""} ${minutes} minute${
+        minutes > 1 ? "s" : ""
+      }`;
     }
-    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    return `${minutes} minute${minutes > 1 ? "s" : ""}`;
   }
-  
+
   componentDidMount = () => {
     let token = localStorage.getItem("token");
     if (!token) {
@@ -301,23 +336,16 @@ export default class Video extends Component {
     // After setting timeData, send the data to the server
     this.sendPcData(this.state.timeData);
 
-
     fetch("http://localhost:2000/userid")
-    .then((response) => response.json())
-    .then((data) => this.setState({ user: data }));
-
-
-
-
+      .then((response) => response.json())
+      .then((data) => this.setState({ user: data }));
   };
 
   sendData = async () => {
-
     const userid = this.state.user ? this.state.user.userid : null;
 
-
     const data = {
-      userId:  userid,
+      userId: userid,
       win_start: this.state.timeData.firstStartTime,
       win_end: this.state.timeData.lastStartTime,
       total_time: this.state.timeData.totalDuration,
@@ -440,205 +468,11 @@ export default class Video extends Component {
   render() {
     const { data } = this.state;
 
-
     const { dataSent } = this.state;
     const { lastData } = this.state;
 
     return (
-      <div style={{overflowX: 'hidden', maxWidth: '100%'}}>
-        {/* <div>
-                    <br></br>
-                    <h2>Dashboard</h2>
-
-                    <Button
-                        className="button_style"
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={this.handleProductOpen}>
-                        Add Beneficiary
-                    </Button>
-
-                    <Button
-                        className="button_style"
-                        variant="contained"
-                        color="primary"
-                        size="small">
-                        <MaterialLink
-                            style={{ textDecoration: "none", color: "white" }}
-                            href="/enumerator">
-                            List Of Enumerator
-                        </MaterialLink>
-                    </Button>
-
-                    <Button
-                        className="button_style"
-                        variant="contained"
-                        color="inherit"
-                        size="small">
-                        <MaterialLink
-                            style={{ textDecoration: "none", color: "black" }}
-                            href="/test">
-                            List Of Test
-                        </MaterialLink>
-                    </Button>
-
-                    <Button
-                        className="button_style"
-                        variant="contained"
-                        color="inherit"
-                        size="small">
-                        <MaterialLink
-                            style={{ textDecoration: "none", color: "black" }}
-                            href="/test">
-                            Transactions
-                        </MaterialLink>
-                    </Button>
-
-                    <Button
-                        className="button_style"
-                        variant="contained"
-                        size="small"
-                        onClick={this.logOut}>
-                        <MaterialLink
-                            style={{
-                                textDecoration: "none",
-                                color: "black",
-                            }}
-                            href="/">
-                            logout
-                        </MaterialLink>
-                    </Button>
-                </div>
-                <br />
-                <TableContainer>
-                    <div className="search-container">
-                        <TextField
-                            id="standard-basic"
-                            type="search"
-                            autoComplete="off"
-                            name="search"
-                            value={this.state.search}
-                            onChange={this.onChange}
-                            placeholder="Search by Beneficiary"
-                            required
-                            style={{ border: "1px solid grey", padding: "1px" }}
-                            InputProps={{
-                                disableUnderline: true,
-                                style: { paddingRight: "5px", paddingLeft: "50px" },
-                            }}
-                        />
-                    </div>
-
-                    <Table aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="center">
-                                    <b> Beneficiary Created Time </b>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <b> Beneficiary Name </b>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <b> Beneficiary Id </b>
-                                </TableCell>
-
-                                <TableCell align="center">
-                                    <b> Test Score </b>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <b> Action </b>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <b> View BeneFiciary </b>
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-
-                        <TableBody>
-                            {this.state?.filteredBeneficiary?.reverse().map((row, index) => (
-                                <TableRow key={index}>
-                                    <TableCell align="center">
-                                        {new Date(row.updatedAt).toLocaleString("en-US", {
-                                            hour: "numeric",
-                                            minute: "numeric",
-                                            hour12: true,
-                                        })}
-                                        &nbsp; &nbsp; &nbsp; &nbsp;
-                                        {new Date(row.updatedAt).toLocaleString("en-GB", {
-                                            month: "2-digit",
-                                            day: "2-digit",
-                                            year: "numeric",
-                                        })}
-                                    </TableCell>
-                                    <TableCell align="center">{row.name}</TableCell>
-
-                                    <TableCell align="center" component="th" scope="row">
-                                        {row.beneficiaryId}
-                                    </TableCell>
-
-                                    <TableCell align="center">{row.score1}</TableCell>
-
-                                    <TableCell align="center">
-                                        <Button
-                                            className="button_style"
-                                            variant="outlined"
-                                            color="primary"
-                                            size="small"
-                                            onClick={() => this.handleProductEditOpen(row)}>
-                                            Edit
-                                        </Button>
-
-                                        <BeneficiaryDelete row={row} />
-                                    </TableCell>
-
-                                    <TableCell align="center">
-                                        <Button
-                                            className="button_style"
-                                            variant="contained"
-                                            color="primary"
-                                            size="small">
-                
-                                            <Link
-                                                style={{
-                                                    textDecoration: "none",
-                                                    color: "white",
-                                                }}
-                                                to={`/profile/${row._id}`}
-                                                state={row}>
-                                                BeneFiciary Details
-                                            </Link>
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-
-                    <br />
-                    <Pagination
-                        count={this.state.pages}
-                        page={this.state.page}
-                        onChange={this.pageChange}
-                        color="primary"
-                    />
-                </TableContainer>
-                {this.state.openProductEditModal && (
-                    <EditBeneficiary
-                        beneficiary={this.state.currentBeneficiary}
-                        isEditModalOpen={this.state.openProductEditModal}
-                        handleEditModalClose={this.handleProductEditClose}
-                        getBeneficiaries={this.getBeneficiaries}
-                    />
-                )}
-                {this.state.openProductModal && (
-                    <AddBeneficiary
-                        isEditModalOpen={this.state.openProductModal}
-                        handleEditModalClose={this.handleProductClose}
-                        getBeneficiaries={this.getBeneficiaries}
-                    />
-                )} */}
-
+      <div style={{ overflowX: "hidden", maxWidth: "100%" }}>
         {this.state.openProductEditModal && (
           <EditBeneficiary
             beneficiary={this.state.currentBeneficiary}
@@ -656,376 +490,130 @@ export default class Video extends Component {
         )}
         <AppBar position="static" style={{ backgroundColor: "#1F8A70" }}>
           <Toolbar>
-            <div>
-              <Button variant="contained" color="primary" href="/dashboard" style={{ zIndex: "9999" }} >
-              Video INFO
+            <div style={{ display: "flex"}}>
+              <Button
+                variant="contained"
+                color="primary"
+                href="/dashboard"
+                style={{ zIndex: "9999" }}
+              >
+                Video INFO
               </Button>
+              &nbsp; &nbsp;
+              <h5 style={{ paddingTop: "10px"}}>Video Dashboard</h5>
+
             </div>
 
             <div style={{ flexGrow: 1 }} />
             <div style={{ flexGrow: 1 }}>
               <div style={{ display: "flex", alignItems: "center" }}>
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                 &nbsp; &nbsp; &nbsp; &nbsp;
-                {/*<Button*/}
-                {/*  variant="contained"*/}
-                {/*  size="small"*/}
-                {/*  onClick={this.handleProductOpen}*/}
-                {/*>*/}
-                {/*  /!*<b> Add School</b>*!/*/}
-                {/*</Button>*/}
-                &nbsp; &nbsp;
-                {/*<Button variant="contained" size="small">*/}
-                {/*  /!*<b> Download </b>*!/*/}
-                {/*</Button>*/}
-                {/* &nbsp; &nbsp; */}
-                {/* <Button variant="contained" size="small">
-                  <b> Details </b>
-                </Button> */}
-                {/* &nbsp; */}
-                {/* <IconButton>
-                  <SearchIcon style={{ color: "white" }} />
-                </IconButton>
-                <InputBase
-                  placeholder="Search..."
-                  style={{ marginLeft: 1, color: "white" }}
-                  inputProps={{
-                    style: { color: "white" },
-                    placeholder: "SEARCH",
-                  }}
-                /> */}
-
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                &nbsp;
-
-
-
-
-                  <Button
-                    className="button_style"
-                    variant="contained"
-                    color="success"
-                    size="small"
-                    style={{ zIndex: "9999" }}
-                    onClick={this.downloadCSV}
-                  >
-                   Download
-                  </Button>
-
-                {/* <Button
+                <Button
                   className="button_style"
                   variant="contained"
+                  color="success"
                   size="small"
-                  onClick={this.logOut}
+                  style={{ zIndex: "9999" }}
+                  onClick={this.downloadCSV}
                 >
-                  <MaterialLink
-                    style={{
-                      textDecoration: "none",
-                      color: "black",
-                    }}
-                    href="/"
-                  >
-                    <b> Logout </b>
-                  </MaterialLink>
-                </Button> */}
+                  Download
+                </Button>
               </div>
             </div>
           </Toolbar>
         </AppBar>
 
-
-
         <AppBar position="static" style={{ backgroundColor: "#3399CC" }}>
           {this.state?.filteredBeneficiary?.map((row, index) => (
-              <Toolbar>
-                <div>
-                  <div
-                      style={{
-                        backgroundColor: "#FF9933", // Adjust the color as desired
-                        borderRadius: "4px",
-                        display: "inline-block",
-                        textDecoration: "none",
-                        color: "black",
-                      }}
-                  >
-                    <Button
-
-                        variant="h6"
-                        style={{
-                          fontWeight: "bold",
-                          fontSize: "16px", // Adjust the font size as desired
-
-                          padding: "4px",
-                          paddingLeft: "12px",
-                          paddingRight: "12px",
-                          zIndex: "99999"
-                        }}
-                        href="/allcontent"
-
-                    >
-                      {row.name}
-                    </Button>
-                  </div>
-                </div>
-                {/* <div style={{ flexGrow: 1 }} /> */}
-                &nbsp; &nbsp; &nbsp; &nbsp;
-                <div style={{ flexGrow: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    {/* <IconButton>
-                  <SearchIcon style={{ color: "white" }} />
-                </IconButton>
-                <InputBase
-                  placeholder="Search..."
-                  style={{ marginLeft: 8, color: "white" }}
-                  inputProps={{
-                    style: { color: "white" },
-                    placeholder: "SEARCH",
+            <Toolbar>
+              <div>
+                <div
+                  style={{
+                    backgroundColor: "#FF9933", // Adjust the color as desired
+                    borderRadius: "4px",
+                    display: "inline-block",
+                    textDecoration: "none",
+                    color: "black",
                   }}
-                /> */}
-                    <Button
-                        variant="contained"
-                        size="small"
-                        onClick={this.handleProductOpen}
-                    >
-                      <b>EIIN: {row.beneficiaryId} </b>
-                    </Button>
-                    &nbsp; &nbsp;
-                    <Button variant="contained" size="small">
-                      <b> LAB ID: {row.u_nm} </b>
-                    </Button>
-                    &nbsp; &nbsp;
-                    <Button variant="contained" size="small">
-                      <b> PC ID: {row.f_nm} </b>
-                    </Button>
-                    &nbsp; &nbsp;
-                    <Button
-                        className="button_style"
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        style={{ zIndex: "9999" }}
+                >
+                  <Button
+                    variant="h6"
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "16px", // Adjust the font size as desired
 
-                        onClick={() => this.handleProductEditOpen(row)}
-                    >
-                      Edit
-                    </Button>
-                    <BeneficiaryDelete
-                                                            row={row} />
-                    &nbsp; &nbsp;
-
-                  </div>
+                      padding: "4px",
+                      paddingLeft: "12px",
+                      paddingRight: "12px",
+                      zIndex: "99999",
+                    }}
+                    href="/allcontent"
+                  >
+                    {row.name}
+                  </Button>
                 </div>
-              </Toolbar>
+              </div>
+              {/* <div style={{ flexGrow: 1 }} /> */}
+              &nbsp; &nbsp; &nbsp; &nbsp;
+              <div style={{ flexGrow: 1 }}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={this.handleProductOpen}
+                  >
+                    <b>EIIN: {row.beneficiaryId} </b>
+                  </Button>
+                  &nbsp; &nbsp;
+                  <Button variant="contained" size="small">
+                    <b> LAB ID: {row.u_nm} </b>
+                  </Button>
+                  &nbsp; &nbsp;
+                  <Button variant="contained" size="small">
+                    <b> PC ID: {row.f_nm} </b>
+                  </Button>
+                  &nbsp; &nbsp;
+                  <Button
+                    className="button_style"
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    style={{ zIndex: "9999" }}
+                    onClick={() => this.handleProductEditOpen(row)}
+                  >
+                    Edit
+                  </Button>
+                  <BeneficiaryDelete row={row} />
+                  &nbsp; &nbsp;
+                </div>
+              </div>
+            </Toolbar>
           ))}
         </AppBar>
         <div>
-
-          <div style={{ transform: 'translate(10px, -111px)' }}>
+          <div style={{ transform: "translate(10px, -111px)" }}>
             <File />
           </div>
-
-          {/*<TableContainer>*/}
-          {/*  /!* <div className="search-container">*/}
-          {/*              <TextField*/}
-          {/*                  id="standard-basic"*/}
-          {/*                  type="search"*/}
-          {/*                  autoComplete="off"*/}
-          {/*                  name="search"*/}
-          {/*                  value={this.state.search}*/}
-          {/*                  onChange={this.onChange}*/}
-          {/*                  placeholder="Search by Beneficiary"*/}
-          {/*                  required*/}
-          {/*                  style={{ border: "1px solid grey", padding: "1px" }}*/}
-          {/*                  InputProps={{*/}
-          {/*                      disableUnderline: true,*/}
-          {/*                      style: { paddingRight: "5px", paddingLeft: "50px" },*/}
-          {/*                  }}*/}
-          {/*              />*/}
-          {/*          </div> *!/*/}
-
-          {/*  <Table aria-label="simple table">*/}
-          {/*    <TableHead>*/}
-          {/*      <TableRow>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> Start Date & Time </b>*/}
-          {/*        </TableCell>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> Last Usage Date & Time </b>*/}
-          {/*        </TableCell>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> Duration </b>*/}
-          {/*        </TableCell>*/}
-
-          {/*        <TableCell align="center">*/}
-          {/*          <b> School Name </b>*/}
-          {/*        </TableCell>*/}
-          {/*        <TableCell align="center">*/}
-          {/*          <b> User Name </b>*/}
-          {/*        </TableCell>*/}
-          {/*      </TableRow>*/}
-          {/*    </TableHead>*/}
-
-          {/*    <TableBody>*/}
-          {/*      {this.state?.filteredBeneficiary*/}
-          {/*        ?.reverse()*/}
-          {/*        .map((row, index) => (*/}
-          {/*          <TableRow key={index}>*/}
-          {/*            <TableCell align="center">{lastData.win_start}</TableCell>*/}
-
-          {/*            <TableCell align="center"> {lastData.win_end}</TableCell>*/}
-
-          {/*            <TableCell align="center" component="th" scope="row">*/}
-          {/*              {this.convertToHoursAndMinutes(lastData.total_time)}*/}
-          {/*            </TableCell>*/}
-
-          {/*            <TableCell align="center">{row.name}</TableCell>*/}
-
-          {/*            <TableCell align="center">*/}
-          {/*              /!* <Button*/}
-          {/*                className="button_style"*/}
-          {/*                variant="outlined"*/}
-          {/*                color="primary"*/}
-          {/*                size="small"*/}
-          {/*                onClick={() => this.handleProductEditOpen(row)}*/}
-          {/*              >*/}
-          {/*                Edit*/}
-          {/*              </Button>*/}
-
-          {/*              <BeneficiaryDelete row={row} /> *!/*/}
-
-          {/*              {row.m_nm}*/}
-          {/*            </TableCell>*/}
-
-          {/*            /!* <TableCell align="center">*/}
-          {/*              <Button*/}
-          {/*                className="button_style"*/}
-          {/*                variant="contained"*/}
-          {/*                // color="primary"*/}
-          {/*                size="small"*/}
-          {/*              >*/}
-          {/*                <Link*/}
-          {/*                  style={{*/}
-          {/*                    // backgroundColor: "#1C6758",*/}
-          {/*                    textDecoration: "none",*/}
-          {/*                    color: "black",*/}
-          {/*                  }}*/}
-          {/*                  to={`/profile/${row._id}`}*/}
-          {/*                  state={row}*/}
-          {/*                >*/}
-          {/*                   Details*/}
-          {/*                </Link>*/}
-          {/*              </Button>*/}
-          {/*            </TableCell> *!/*/}
-          {/*          </TableRow>*/}
-          {/*        ))}*/}
-          {/*    </TableBody>*/}
-          {/*  </Table>*/}
-
-          {/*  <br />*/}
-          {/*  <Pagination*/}
-          {/*    count={this.state.pages}*/}
-          {/*    page={this.state.page}*/}
-          {/*    onChange={this.pageChange}*/}
-          {/*    color="primary"*/}
-          {/*  />*/}
-          {/*</TableContainer>*/}
-          {/* 
-          <div className="App">
-            <header className="App-header">
-              <h1>React Frontend</h1>
-              {dataSent ? (
-                <p></p>
-              ) : (
-                <button onClick={this.handleClick1}>Computer Usages</button>
-              )}
-            </header>
-          </div>
-
-          <div>
-            <p>win_start: {lastData.win_start}</p>
-            <p>win_end: {lastData.win_end}</p>
-            <p>total_time: {lastData.total_time}</p>
-          </div> */}
         </div>
 
-
+        {/* 
         <AppBar
           position="static"
           style={{ backgroundColor: "#ffff", marginTop: "22%" }}
           elevation={0}
         >
           <Toolbar>
-            {/* <div>
-              <Button variant="contained" color="primary" href="/video">
-                PC INFO
-              </Button>
-            </div> */}
+            
 
             <div style={{ flexGrow: 1 }} />
             <div style={{ flexGrow: -2 }}>
               <div style={{ display: "flex", alignItems: "center" }}>
-                {/* <Button
-                  variant="contained"
-                  size="small"
-                  onClick={this.handleProductOpen}
-                >
-                  <b> Add School</b>
-                </Button>
-                &nbsp; &nbsp;
-                <Button variant="contained" size="small">
-                  <b> Download </b>
-                </Button>
-                &nbsp; &nbsp;
-                <Button variant="contained" size="small">
-                  <b> Details </b>
-                </Button> */}
+              
                 &nbsp;
-                {/* <IconButton>
-                  <SearchIcon style={{ color: "white" }} />
-                </IconButton>
-                <InputBase
-                  placeholder="Search..."
-                  style={{ marginLeft: 1, color: "white" }}
-                  inputProps={{
-                    style: { color: "white" },
-                    placeholder: "SEARCH",
-                  }}
-                /> */}
-                {/* {dataSent ? (
-                  <p></p>
-                ) : (
-                  <Button
-                    className="button_style"
-                    variant="contained"
-                    color="secondary"
-                    size="small"
-                    onClick={this.handleClick1}
-                  >
-                    Exit
-                  </Button>
-                )} */}
+             
                 <Button
                   className="button_style"
                   variant="contained"
@@ -1046,7 +634,7 @@ export default class Video extends Component {
               </div>
             </div>
           </Toolbar>
-        </AppBar>
+        </AppBar> */}
       </div>
     );
   }

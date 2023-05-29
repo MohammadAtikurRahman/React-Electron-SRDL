@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Papa from "papaparse";
 
-import Userid from './Userid';  // Import Userid component
+import Userid from "./Userid"; // Import Userid component
 
 import {
   AppBar,
@@ -22,11 +22,8 @@ const File = () => {
     fetchData();
 
     fetch("http://localhost:2000/userid")
-    .then((response) => response.json())
-    .then((data) => setUser(data));
-
-
-
+      .then((response) => response.json())
+      .then((data) => setUser(data));
   }, []);
 
   const fetchCSVData = () => {
@@ -100,7 +97,7 @@ const File = () => {
               <tr>
                 <th
                   style={{
-                    fontSize: "8px",
+                    fontSize: "13px",
                     border: "1px solid black", // Apply border to table header cells
                     padding: "8px",
                   }}
@@ -109,7 +106,7 @@ const File = () => {
                 </th>
                 <th
                   style={{
-                    fontSize: "8px",
+                    fontSize: "13px",
                     border: "1px solid black",
                     padding: "8px",
                   }}
@@ -118,7 +115,7 @@ const File = () => {
                 </th>
                 <th
                   style={{
-                    fontSize: "8px",
+                    fontSize: "13px",
                     border: "1px solid black",
                     padding: "8px",
                   }}
@@ -127,7 +124,7 @@ const File = () => {
                 </th>
                 <th
                   style={{
-                    fontSize: "8px",
+                    fontSize: "13px",
                     border: "1px solid black",
                     padding: "8px",
                   }}
@@ -136,7 +133,7 @@ const File = () => {
                 </th>
                 <th
                   style={{
-                    fontSize: "8px",
+                    fontSize: "13px",
                     border: "1px solid black",
                     padding: "8px",
                   }}
@@ -145,7 +142,7 @@ const File = () => {
                 </th>
                 <th
                   style={{
-                    fontSize: "8px",
+                    fontSize: "13px",
                     border: "1px solid black",
                     padding: "8px",
                   }}
@@ -154,7 +151,7 @@ const File = () => {
                 </th>
                 <th
                   style={{
-                    fontSize: "8px",
+                    fontSize: "13px",
                     border: "1px solid black",
                     padding: "8px",
                   }}
@@ -164,11 +161,11 @@ const File = () => {
               </tr>
             </thead>
             <tbody>
-              {data.reverse().map((item, index) => (
+              {data.slice().reverse().map((item, index) => (
                 <tr key={index}>
                   <td
                     style={{
-                      fontSize: "8px",
+                      fontSize: "10px",
                       border: "1px solid black", // Apply border to table cells
                       padding: "8px",
                     }}
@@ -177,7 +174,7 @@ const File = () => {
                   </td>
                   <td
                     style={{
-                      fontSize: "8px",
+                      fontSize: "9px",
                       border: "1px solid black",
                       padding: "8px",
                     }}
@@ -186,7 +183,7 @@ const File = () => {
                   </td>
                   <td
                     style={{
-                      fontSize: "8px",
+                      fontSize: "10px",
                       border: "1px solid black",
                       padding: "8px",
                     }}
@@ -195,7 +192,7 @@ const File = () => {
                   </td>
                   <td
                     style={{
-                      fontSize: "8px",
+                      fontSize: "10px",
                       border: "1px solid black",
                       padding: "8px",
                     }}
@@ -204,7 +201,7 @@ const File = () => {
                   </td>
                   <td
                     style={{
-                      fontSize: "8px",
+                      fontSize: "10px",
                       border: "1px solid black",
                       padding: "8px",
                     }}
@@ -213,7 +210,7 @@ const File = () => {
                   </td>
                   <td
                     style={{
-                      fontSize: "8px",
+                      fontSize: "10px",
                       border: "1px solid black",
                       padding: "8px",
                     }}
@@ -222,7 +219,7 @@ const File = () => {
                   </td>
                   <td
                     style={{
-                      fontSize: "8px",
+                      fontSize: "10px",
                       border: "1px solid black",
                       padding: "8px",
                     }}

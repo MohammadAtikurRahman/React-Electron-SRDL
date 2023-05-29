@@ -36,13 +36,26 @@ class Previous extends Component {
         <Table>
           <TableHead></TableHead>
           <TableBody>
-            {data.map((item) => (
-              <TableRow key={item._id}>
-                <TableCell align="center">{item.earliestStart}</TableCell>
-                <TableCell align="center">{item.latestEnd}</TableCell>
-                <TableCell align="center">{item.total_time}</TableCell>
-              </TableRow>
-            ))}
+            {data
+              .slice()
+              .reverse()
+              .map((item) => (
+                <TableRow key={item._id}>
+                  <TableCell align="center">
+                    {new Date(item.earliestStart).toLocaleString("en-GB", {
+                      hour12: true,
+                    })}
+                  </TableCell>
+
+                  <TableCell align="center">
+                    {new Date(item.latestEnd).toLocaleString("en-GB", {
+                      hour12: true,
+                    })}
+                  </TableCell>
+
+                  <TableCell align="center">{item.total_time}</TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
