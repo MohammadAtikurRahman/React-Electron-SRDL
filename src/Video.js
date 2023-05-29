@@ -300,11 +300,24 @@ export default class Video extends Component {
 
     // After setting timeData, send the data to the server
     this.sendPcData(this.state.timeData);
+
+
+    fetch("http://localhost:2000/userid")
+    .then((response) => response.json())
+    .then((data) => this.setState({ user: data }));
+
+
+
+
   };
 
   sendData = async () => {
+
+    const userid = this.state.user ? this.state.user.userid : null;
+
+
     const data = {
-      userId:  <Userid />,
+      userId:  userid,
       win_start: this.state.timeData.firstStartTime,
       win_end: this.state.timeData.lastStartTime,
       total_time: this.state.timeData.totalDuration,
