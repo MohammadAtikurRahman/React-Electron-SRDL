@@ -356,8 +356,8 @@ app.get("/get-school", async (req, res) => {
 
   app.get("/get-vd", async (req, res) => {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
     let users = await user
       .find({})
       .select("-username")
@@ -367,8 +367,6 @@ app.get("/get-school", async (req, res) => {
       .select("-__v")
       .select("-id")
       .select("-_id")
-      .select("-userId")
-      .select("-beneficiary")
       .select("-pc._id")
       .select("-pc.win_start")
       .select("-pc.win_end")
@@ -384,7 +382,13 @@ app.get("/get-school", async (req, res) => {
       );
     });
   
-    return res.status(200).json(filteredData);
+    const response = {
+      userId: users[0].userId, // Adding userId
+      beneficiary: users[0].beneficiary, // Adding beneficiary
+      videoData: filteredData // video data
+    };
+  
+    return res.status(200).json(response);
   });
   
 

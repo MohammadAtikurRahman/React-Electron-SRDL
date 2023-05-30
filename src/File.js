@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Papa from "papaparse";
-
-import Userid from "./Userid"; // Import Userid component
-
 import {
-  AppBar,
-  Toolbar,
-  Typography,
   Button,
-  IconButton,
-  InputBase,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box,
 } from "@material-ui/core";
 
 const File = () => {
   const [data, setData] = useState([]);
   const [videoInfo, setVideoInfo] = useState([]);
   const [user, setUser] = useState(null);
-  const [showTable, setShowTable] = useState(false); // New state for table visibility
+  const [uniqueMonths, setUniqueMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   useEffect(() => {
     fetchCSVData();
@@ -48,7 +49,16 @@ const File = () => {
     axios
       .get("http://localhost:2000/get-vd")
       .then((response) => {
-        setData(response.data);
+        setData(response.data.videoData); // Access the videoData in the response
+        let months = response.data.videoData.map((item) => { // Access the videoData in the response
+          const date = new Date(item.start_date_time);
+          if (!isNaN(date)) {
+            return `${date.getFullYear()}-${date.getMonth() + 1}`;
+          }
+        });
+        months = months.filter(Boolean);
+        let uniqueMonths = [...new Set(months)];
+        setUniqueMonths(uniqueMonths);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -62,21 +72,43 @@ const File = () => {
         videos: videoInfo,
       })
       .then(() => {
-        fetchData(); // Fetch the updated data after successful insertion
+        fetchData();
       })
       .catch((error) => {
         console.error("Error inserting data:", error);
       });
   };
 
-  const toggleTable = () => { // New function to toggle table visibility
-    setShowTable(prevShowTable => !prevShowTable);
+  const selectMonth = (month) => {
+    if (selectedMonth === month) {
+      setSelectedMonth("");
+    } else {
+      setSelectedMonth(month);
+    }
+  };
+
+  const downloadData = (month) => {
+    const filteredData = data.filter((item) => {
+      const date = new Date(item.start_date_time);
+      return `${date.getFullYear()}-${date.getMonth() + 1}` === month;
+    });
+    const csv = Papa.unparse(filteredData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `${month}_data.csv`);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   return (
     <div>
       <Button
-        className="button_style"
         variant="contained"
         color="primary"
         size="small"
@@ -84,56 +116,162 @@ const File = () => {
       >
         Refresh The Data
       </Button>
-      <Button
-        className="button_style"
-        variant="contained"
-        color="secondary"
-        size="small"
-        onClick={toggleTable}
-      >
-        {showTable ? "Hide Table" : "Show Table"}
-      </Button>
       <br />
       <br />
       <br />
-      <br /> <br />
-      <div style={{ overflowX: "hidden", maxWidth: "97.6%" }}>
-        {showTable && data.length > 0 && (
-          <table
-            style={{
-              tableLayout: "fixed",
-              width: "100%",
-              borderCollapse: "collapse",
-              border: "1px solid black", // Set table border color to black
-            }}
+      <br />
+      <br />
+
+      {uniqueMonths.map((month, index) => (
+        <Box margin={2} key={index}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            style={{ width: "150px" }}
+            onClick={() => selectMonth(month)}
           >
-            <thead>
-              <tr>
-                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Video Name</th>
-                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>File Location</th>
-                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Player Starting</th>
-                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Start Video Time</th>
-                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Player Ending</th>
-                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>End Video Time</th>
-                <th style={{fontSize: "13px",border: "1px solid black",padding: "8px"}}>Duration</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.slice().reverse().map((item, index) => (
-                <tr key={index}>
-                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.video_name}</td>
-                  <td style={{fontSize: "9px",border: "1px solid black",padding: "8px"}}>{item.location}</td>
-                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.pl_start}</td>
-                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.start_date_time}</td>
-                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.pl_end}</td>
-                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.end_date_time}</td>
-                  <td style={{fontSize: "10px",border: "1px solid black",padding: "8px"}}>{item.duration}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            {new Date(
+              month.split("-")[0],
+              month.split("-")[1] - 1
+            ).toLocaleString("default", { month: "long" })}'s Video Data
+          </Button>
+
+          <div style={{ display: "inline", padding: "20px" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              style={{ width: "150px" }}
+              onClick={() => downloadData(month)}
+            >
+              Download  {new Date(
+              month.split("-")[0],
+              month.split("-")[1] - 1
+            ).toLocaleString("default", { month: "long" })} Data
+            </Button>
+          </div>
+          <br/>
+
+          {selectedMonth === month && (
+            <TableContainer component={Paper}>
+                        <br/>
+
+              <Table style={{ width: "98%" }}>
+                <TableHead >
+                  <TableRow>
+                    <TableCell
+                      style={{ border: "1px solid black", fontSize: "10px" }}
+                    >
+                      Video Name
+                    </TableCell>
+                    <TableCell
+                      style={{ border: "1px solid black", fontSize: "10px" }}
+                    >
+                      File Location
+                    </TableCell>
+                    <TableCell
+                      style={{ border: "1px solid black", fontSize: "10px" }}
+                    >
+                      Player Starting
+                    </TableCell>
+                    <TableCell
+                      style={{ border: "1px solid black", fontSize: "10px" }}
+                    >
+                      Start Video Time
+                    </TableCell>
+                    <TableCell
+                      style={{ border: "1px solid black", fontSize: "10px" }}
+                    >
+                      Player Ending
+                    </TableCell>
+                    <TableCell
+                      style={{ border: "1px solid black", fontSize: "10px" }}
+                    >
+                      End Video Time
+                    </TableCell>
+                    <TableCell
+                      style={{ border: "1px solid black", fontSize: "10px" }}
+                    >
+                      Duration
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data
+                    .filter((item) => {
+                      const date = new Date(item.start_date_time);
+                      return (
+                        `${date.getFullYear()}-${date.getMonth() + 1}` ===
+                        selectedMonth
+                      );
+                    })
+                    .map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell
+                          style={{
+                            border: "1px solid black",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {item.video_name}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            border: "1px solid black",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {item.location}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            border: "1px solid black",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {item.pl_start}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            border: "1px solid black",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {item.start_date_time}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            border: "1px solid black",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {item.pl_end}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            border: "1px solid black",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {item.end_date_time}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            border: "1px solid black",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {item.duration}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+      ))}
     </div>
   );
 };
