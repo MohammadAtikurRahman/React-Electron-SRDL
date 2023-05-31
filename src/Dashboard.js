@@ -346,8 +346,13 @@ export default class Dashboard extends Component {
   };
 
 
-  
+
   fetchData1 = () => {
+ 
+    
+    if (navigator.onLine) {
+
+
     axios.get("http://localhost:2000/get-school")
       .then((response) => {
         const { data } = response;
@@ -403,6 +408,10 @@ export default class Dashboard extends Component {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
+
+    }
+
+
   };
   
 
