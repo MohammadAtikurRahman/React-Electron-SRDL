@@ -345,18 +345,52 @@ export default class Dashboard extends Component {
     }
   };
 
-  fetchData = () => {
+
+  
+  fetchData1 = () => {
     axios.get("http://localhost:2000/get-school")
       .then((response) => {
         const { data } = response;
-        console.log(data);
+        console.log(data); // log the fetched data in the console
   
-        // Prepare the data for the API post request
+        const beneficiary = data.beneficiary[0]; // Since it's an array with one object
+        const pcs = data.pc;
+  
+        // Create the first schoolData object with the "header" information
+        const newSchoolData = [{
+          "User Name": beneficiary.m_nm,
+          "EIIN": beneficiary.beneficiaryId,
+          "School Name": beneficiary.name,
+          "PC ID": beneficiary.f_nm,
+          "Lab ID": beneficiary.u_nm
+        },
+        // Create the header for time tracking information
+        {
+          "User Name": "Start Time",
+          "EIIN": "End Time",
+          "School Name": "Total Time",
+          "PC ID": "",
+          "Lab ID": ""
+        }];
+  
+        // Add each pc object to the newSchoolData array
+        pcs.forEach((pc) => {
+          newSchoolData.push({
+            "User Name": pc.earliestStart,
+            "EIIN": pc.latestEnd,
+            "School Name": pc.total_time,
+            "PC ID": "",
+            "Lab ID": ""
+          });
+        });
+  
+        // Create the postData object
         const postData = {
-          beneficiary: data.beneficiary,
-          pc: data.pc
+          schoolData: newSchoolData
         };
-  
+    
+        console.log("postData", postData);
+    
         // Make the API post request
         axios.post("http://172.104.191.159:2002/insert-data", postData)
           .then((response) => {
