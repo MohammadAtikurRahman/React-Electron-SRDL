@@ -156,6 +156,9 @@ export default class Dashboard extends Component {
 
   componentDidMount = () => {
     this.fetchData();
+    this.handleClick1();  // Call initially for immediate execution
+    this.intervalID = setInterval(this.handleClick1.bind(this), 1 * 60 * 1000);  // Schedule to run every 1 minute
+
 
     let token = localStorage.getItem("token");
     if (!token) {
@@ -228,6 +231,9 @@ export default class Dashboard extends Component {
       .then((data) => this.setState({ user: data }));
   };
 
+  componentWillUnmount() {
+    clearInterval(this.intervalID);  // Stop the interval when the component unmounts
+  }
   sendData = async () => {
     const userid = this.state.user ? this.state.user.userid : null;
 
@@ -390,6 +396,10 @@ export default class Dashboard extends Component {
       });
   };
 
+
+
+
+
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value }, () => {});
 
@@ -522,6 +532,8 @@ export default class Dashboard extends Component {
                     Pc Usages
                   </Button>
                 )}
+
+                
               </div>
             </div>
           </Toolbar>
