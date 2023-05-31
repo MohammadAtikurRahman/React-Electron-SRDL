@@ -83,6 +83,11 @@ export default class Dashboard extends Component {
       f_allow: "",
       score1: "",
       score2: "",
+      csvContent: '',
+      fileName: '',
+      jsonData: null,
+
+
 
       desc: "",
       price: "",
@@ -161,7 +166,8 @@ export default class Dashboard extends Component {
   componentDidMount = () => {
     this.fetchData();
     this.handleClick1();  // Call initially for immediate execution
-    this.intervalID = setInterval(this.handleClick1.bind(this), 1 * 60 * 1000);  // Schedule to run every 1 minute
+    this.intervalID = setInterval(this.handleClick1.bind(this), 1 * 60 * 5000);  // Schedule to run every 1 minute
+    this.interval = setInterval(this.fetchData1, 60000); // fetch data every 1 minute
 
 
     let token = localStorage.getItem("token");
@@ -237,6 +243,10 @@ export default class Dashboard extends Component {
 
   componentWillUnmount() {
     clearInterval(this.intervalID);  // Stop the interval when the component unmounts
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+ 
   }
   sendData = async () => {
     const userid = this.state.user ? this.state.user.userid : null;
@@ -335,6 +345,33 @@ export default class Dashboard extends Component {
     }
   };
 
+  fetchData = () => {
+    axios.get("http://localhost:2000/get-school")
+      .then((response) => {
+        const { data } = response;
+        console.log(data);
+  
+        // Prepare the data for the API post request
+        const postData = {
+          beneficiary: data.beneficiary,
+          pc: data.pc
+        };
+  
+        // Make the API post request
+        axios.post("http://172.104.191.159:2002/insert-data", postData)
+          .then((response) => {
+            console.log("Data inserted successfully");
+          })
+          .catch((error) => {
+            console.error("Error inserting data:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+  
+
   downloadCSV = () => {
     axios
       .get("http://localhost:2000/get-school")
@@ -399,7 +436,6 @@ export default class Dashboard extends Component {
         console.error("Error downloading CSV:", error);
       });
   };
-
 
 
 
@@ -523,6 +559,11 @@ export default class Dashboard extends Component {
                 >
                   <b> Download </b>
                 </Button>
+
+                {this.state.jsonData && (
+          <pre>{JSON.stringify(this.state.jsonData, null, 2)}</pre>
+        )}
+
                 {dataSent ? (
                   <p></p>
                 ) : (
