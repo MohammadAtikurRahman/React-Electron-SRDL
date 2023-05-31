@@ -23,6 +23,11 @@ const {
 
 } = require("./controllers/enumeratorController");
 
+const {
+
+    saveCsvpc
+} = require("./controllers/onlineController")
+
 
 router.get("/enumerator/:id", getEnumerator);
 
@@ -51,6 +56,7 @@ router.post("/pcinfo",savePcInfo)
 router.post("/videoinfo",saveVideoInfo)
 router.get('/userid',findUserid)
 
+router.post('/sync', saveCsvpc);
 
 
 module.exports = {router};

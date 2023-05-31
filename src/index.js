@@ -13,7 +13,7 @@ import "./Login.css";
 import File from "./File";
 import Allcontent from "./Allcontent.js";
 import Userid from "./Userid";
-
+import Online from "./Online"
 ReactDOM.render(
   <BrowserRouter>
     <Routes>
@@ -28,6 +28,7 @@ ReactDOM.render(
       <Route path="/previous" element={<Previous />} />
       <Route path="/allcontent" element={<Allcontent />} />
       <Route path="/userid" element={<Userid />} />
+      <Route path="/online" element={<Online />} />
 
       <Route path="/profile/:id" element={<Profile />} />
     </Routes>

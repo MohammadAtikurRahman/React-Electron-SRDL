@@ -20,6 +20,10 @@ import { searchBeneficiary } from "./utils/search";
 import { EditBeneficiary } from "./EditBeneficiary";
 import { AddBeneficiary } from "./AddBeneficiary";
 import Previous from "./Previous";
+
+import Online from "./Online";
+
+
 import {
   AppBar,
   Toolbar,
@@ -532,7 +536,8 @@ export default class Dashboard extends Component {
                     Pc Usages
                   </Button>
                 )}
-
+          
+              <Online />
                 
               </div>
             </div>
