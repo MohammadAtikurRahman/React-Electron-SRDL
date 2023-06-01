@@ -112,6 +112,8 @@ export default class Video extends Component {
   handleClick(event) {
     this.setState({ anchorEl: event.currentTarget });
   }
+
+
   fetchData = () => {
     axios
       .get("http://localhost:2000/get-vd")
@@ -122,6 +124,10 @@ export default class Video extends Component {
         console.error("Error fetching data:", error);
       });
   };
+
+
+
+
 
   downloadCSV = () => {
     function createCombinedRow(bData, pcData = {}) {
@@ -269,6 +275,11 @@ export default class Video extends Component {
   }
 
   componentDidMount = () => {
+
+    this.interval = setInterval(this.fetchData1, 60000); // fetch data every 1 minute
+
+
+
     let token = localStorage.getItem("token");
     if (!token) {
       this.props.history.push("/login");
@@ -340,6 +351,27 @@ export default class Video extends Component {
       .then((response) => response.json())
       .then((data) => this.setState({ user: data }));
   };
+
+  componentWillUnmount() {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+ 
+  }
+  fetchData1 = () => {  
+    axios
+      .get("http://localhost:2000/get-testscore")
+      .then((response) => {
+        const { data } = response;
+        console.log(data); // Log data to console
+        this.data = data; // Store data for later use in CSV download
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+
+
 
   sendData = async () => {
     const userid = this.state.user ? this.state.user.userid : null;
@@ -599,7 +631,7 @@ export default class Video extends Component {
           </div>
         </div>
 
-        {/* 
+        
         <AppBar
           position="static"
           style={{ backgroundColor: "#ffff", marginTop: "22%" }}
@@ -634,7 +666,7 @@ export default class Video extends Component {
               </div>
             </div>
           </Toolbar>
-        </AppBar> */}
+        </AppBar>
       </div>
     );
   }
