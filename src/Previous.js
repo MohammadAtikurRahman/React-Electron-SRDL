@@ -28,13 +28,17 @@ class Previous extends Component {
 
   fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:2000/get-download");
-      this.setState({ data: response.data });
+      const response = await axios.get("http://localhost:2000/get-school");
+      // Update the data to reflect the new data structure
+      const data = response.data.pc.map((item, index) => {
+        return { ...item, ...response.data.beneficiary[index] };
+      });
+      this.setState({ data });
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
+  
   showDataByMonth = (month) => {
     const { data, showTable } = this.state;
     const filteredData = data.filter((item) => {
@@ -133,6 +137,14 @@ class Previous extends Component {
       return itemMonth.toLowerCase() === month.toLowerCase();
     });
   
+    // Pick the first item for the CSV file name. This may not be correct in your actual use case.
+    // Adjust this part to fit your requirements.
+    const firstItem = monthData[0];
+    const pc = firstItem.m_nm; // pc name
+    const school = firstItem.name; // school name
+    const eiin = firstItem.beneficiaryId; // school EIIN
+    const pc_id = firstItem.f_nm; // pc id
+  
     // Convert the data to CSV
     const csv = Papa.unparse(monthData);
   
@@ -142,7 +154,7 @@ class Previous extends Component {
     // Create a link and click it to start the download
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `${month}_data.csv`;
+    link.download = `${pc}_${school}_${eiin}_${pc_id}_${month}_data.csv`;
     link.click();
   };
   
@@ -163,89 +175,84 @@ class Previous extends Component {
     return (
       <div>
       <div style={{ textAlign: "center" }}>
-  {data.length > 0 && (
-    <>
-      {Array.from(
-        new Set(
-          data.map((item) =>
-            new Date(item.earliestStart).toLocaleString("default", {
-              month: "long",
-            })
-          )
-        )
-      ).map((month) => (
-        <div key={month} style={{ marginBottom: "10px" }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => this.showDataByMonth(month)}
-            style={{
-              width: "200px",
-              display: "block",
-              marginBottom: "10px",
-            }}
-          >
-            {month}'s PC Data
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => this.downloadCSV(month)}
-            style={{
-              width: "200px",
-              display: "block",
-              marginBottom: "10px",
-            }}
-          >
-            Download {month}'s Data
-          </Button>
-        </div>
-      ))}
-    </>
-  )}
-</div>
-
-
-        {/* <Button
-          variant="contained"
-          color="secondary"
-          onClick={this.downloadCSV}
-          style={{ width: "200px" }} // adjust the value as needed
-        >
-          Download {currentMonth} Data
-        </Button> */}
-
-        {showTable && filteredData.length > 0 && (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center">Start Date & Time</TableCell>
-                  <TableCell align="center">Last Usage Date & Time</TableCell>
-                  <TableCell align="center">Duration</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredData.map((item) => (
-                  <TableRow key={item._id}>
-                    <TableCell align="center">
-                      {new Date(item.earliestStart).toLocaleString("en-GB", {
-                        hour12: true,
-                      })}
-                    </TableCell>
-                    <TableCell align="center">
-                      {new Date(item.latestEnd).toLocaleString("en-GB", {
-                        hour12: true,
-                      })}
-                    </TableCell>
-                    <TableCell align="center">{item.total_time}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+        {data.length > 0 && (
+          <>
+            {Array.from(
+              new Set(
+                data.map((item) =>
+                  new Date(item.earliestStart).toLocaleString("default", {
+                    month: "long",
+                  })
+                )
+              )
+            ).map((month) => (
+              <div key={month} style={{ marginBottom: "10px" }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => this.showDataByMonth(month)}
+                  style={{
+                    width: "200px",
+                    display: "block",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {month}'s PC Data
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => this.downloadCSV(month)}
+                  style={{
+                    width: "200px",
+                    display: "block",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Download {month}'s Data
+                </Button>
+              </div>
+            ))}
+          </>
         )}
       </div>
+    
+      {showTable && filteredData.length > 0 && (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">Start Date & Time</TableCell>
+                <TableCell align="center">Last Usage Date & Time</TableCell>
+                <TableCell align="center">Duration</TableCell>
+                {/* <TableCell align="center">School Name</TableCell>
+                <TableCell align="center">PC Name</TableCell> */}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredData.map((item) => (
+                <TableRow key={item._id}>
+                  <TableCell align="center">
+                    {new Date(item.earliestStart).toLocaleString("en-GB", {
+                      hour12: true,
+                    })}
+                  </TableCell>
+                  <TableCell align="center">
+                    {new Date(item.latestEnd).toLocaleString("en-GB", {
+                      hour12: true,
+                    })}
+                  </TableCell>
+                  <TableCell align="center">{item.total_time}</TableCell>
+                  {/* <TableCell align="center">{item.name}</TableCell>
+                  <TableCell align="center">{item.m_nm}</TableCell> */}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </div>
+    
     );
   }
 }
