@@ -91,7 +91,7 @@ export function AddBeneficiary(props) {
             <b> Add School </b>{" "}
           </span>
         </DialogTitle>
-        <TextField
+        {/* <TextField
           id="standard-basic"
           type="text"
           autoComplete="off"
@@ -101,7 +101,7 @@ export function AddBeneficiary(props) {
           placeholder="User Name"
           required
           fullWidth
-        />
+        /> */}
            <br />
         <br />
         <TextField

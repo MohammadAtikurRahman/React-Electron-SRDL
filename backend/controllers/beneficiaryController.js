@@ -6,6 +6,7 @@ const User = require("../model/user");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 
+const os = require('os');
 
 
 
@@ -13,28 +14,30 @@ const fs = require("fs");
 
 
 async function addBeneficiary(req, res) {
-    let user = jwt_decode(req.body.token);
+  let user = jwt_decode(req.body.token);
 
-    // Check if the user already has a beneficiary
-    if (user.beneficiary) {
-        return res.status(400).json({ errorMessage: "Beneficiary not inserted. Only one beneficiary is allowed per user." });
-    }
+  // Check if the user already has a beneficiary
+  if (user.beneficiary) {
+      return res.status(400).json({ errorMessage: "Beneficiary not inserted. Only one beneficiary is allowed per user." });
+  }
 
-    const beneficiaryId = await randomNumberNotInBeneficiaryCollection(user.beneficiary);
+  const beneficiaryId = await randomNumberNotInBeneficiaryCollection(user.beneficiary);
 
-    if (!req.body.beneficiary.beneficiaryId) {
-        req.body.beneficiary["beneficiaryId"] = beneficiaryId;
-    }
+  if (!req.body.beneficiary.beneficiaryId) {
+      req.body.beneficiary["beneficiaryId"] = beneficiaryId;
+  }
 
-    user = await User.findByIdAndUpdate(
-        user.id,
-        { beneficiary: req.body.beneficiary },
-        { new: true },
-    );
+  // Insert the Windows user name into m_nm field
+  req.body.beneficiary["m_nm"] = os.userInfo().username;
 
-    return res.status(200).json({ user: user });
+  user = await User.findByIdAndUpdate(
+      user.id,
+      { beneficiary: req.body.beneficiary },
+      { new: true },
+  );
+
+  return res.status(200).json({ user: user });
 }
-
 
 
 
