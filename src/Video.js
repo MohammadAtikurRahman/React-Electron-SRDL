@@ -112,8 +112,6 @@ export default class Video extends Component {
   handleClick(event) {
     this.setState({ anchorEl: event.currentTarget });
   }
-
-
   fetchData = () => {
     axios
       .get("http://localhost:2000/get-vd")
@@ -124,10 +122,6 @@ export default class Video extends Component {
         console.error("Error fetching data:", error);
       });
   };
-
-
-
-
 
   downloadCSV = () => {
     function createCombinedRow(bData, pcData = {}) {
@@ -358,17 +352,46 @@ export default class Video extends Component {
     }
  
   }
+
+
   fetchData1 = () => {  
+   axios
+  .get("http://localhost:2000/get-testscore")
+  .then((response) => {
+    const { data } = response;
+    console.log(data); // Log data to console
+
+    const videoData = {
+      pc_name: data.pc[0].pc_name,
+      eiin: data.beneficiary[0].beneficiaryId,
+      school_name: data.beneficiary[0].name,
+      pc_id: data.beneficiary[0].u_nm,
+      lab_id: data.beneficiary[0].f_nm,
+      video_name: data.pc[0].video_name,
+      location: data.pc[0].location,
+      pl_start: data.pc[0].pl_start,
+      start_date_time: data.pc[0].start_date_time,
+      pl_end: data.pc[0].pl_end,
+      end_date_time: data.pc[0].end_date_time,
+      duration: data.pc[0].duration,
+    };
+
+    console.log(videoData); // Log transformed data to console
+
+    // Make a POST request with the transformed data
     axios
-      .get("http://localhost:2000/get-testscore")
+      .post("http://localhost:2000/post-testscore", videoData)
       .then((response) => {
-        const { data } = response;
-        console.log(data); // Log data to console
-        this.data = data; // Store data for later use in CSV download
+        console.log("Data inserted successfully:", response.data);
+        // Handle the response as needed
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        console.error("Error inserting data:", error);
       });
+  })
+  .catch((error) => {
+    console.error("Error fetching data:", error);
+  });
   };
 
 
