@@ -125,8 +125,7 @@ class Previous extends Component {
   //       console.error("Error downloading CSV:", error);
   //     });
   // };
-
-  downloadCSV = (month) => {
+  downloadCSV = async (month) => {
     const { data } = this.state;
   
     // Filter the data for the specified month
@@ -137,26 +136,39 @@ class Previous extends Component {
       return itemMonth.toLowerCase() === month.toLowerCase();
     });
   
-    // Pick the first item for the CSV file name. This may not be correct in your actual use case.
-    // Adjust this part to fit your requirements.
-    const firstItem = monthData[0];
-    const pc = firstItem.m_nm; // pc name
-    const school = firstItem.name; // school name
-    const eiin = firstItem.beneficiaryId; // school EIIN
-    const pc_id = firstItem.f_nm; // pc id
+    // If there's no data for the month, return early
+    if (monthData.length === 0) return;
   
-    // Convert the data to CSV
-    const csv = Papa.unparse(monthData);
+    try {
+      // Fetch the names from the API
+      const response = await axios.get("http://localhost:2000/get-school");
   
-    // Create a CSV Blob
-    const blob = new Blob([csv], { type: "text/csv" });
+      // Check if there are any beneficiaries in the response
+      if (!response.data.beneficiary || response.data.beneficiary.length === 0) throw new Error("No beneficiaries found in response");
   
-    // Create a link and click it to start the download
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${pc}_${school}_${eiin}_${pc_id}_${month}_data.csv`;
-    link.click();
+      // Extract the properties from the first beneficiary in the response
+      const beneficiary = response.data.beneficiary[0];
+      const lab = beneficiary.u_nm || "Unknown_Lab";
+      const pcLab = beneficiary.f_nm || "Unknown_PCLab";
+      const school = beneficiary.name || "Unknown_School";
+      const eiin = beneficiary.beneficiaryId || "Unknown_EIIN";
+  
+      // Convert the data to CSV
+      const csv = Papa.unparse(monthData);
+  
+      // Create a CSV Blob
+      const blob = new Blob([csv], { type: "text/csv" });
+  
+      // Create a link and click it to start the download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${lab}_${pcLab}_${school}_${eiin}_${month}_data.csv`;
+      link.click();
+    } catch (error) {
+      console.error("Error fetching names:", error);
+    }
   };
+  
   
 
   downloadData = () => {
