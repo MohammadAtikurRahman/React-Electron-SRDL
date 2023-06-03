@@ -17,6 +17,7 @@ class Previous extends Component {
   state = {
     data: [],
     showTable: false,
+    filteredData: [],
   };
 
   componentDidMount() {
@@ -32,8 +33,20 @@ class Previous extends Component {
     }
   };
 
-  toggleShowTable = () => {
-    this.setState((prevState) => ({ showTable: !prevState.showTable }));
+  showDataByMonth = (month) => {
+    const { data, showTable } = this.state;
+    const filteredData = data.filter((item) => {
+      const itemMonth = new Date(item.earliestStart).toLocaleString("default", {
+        month: "long",
+      });
+      return itemMonth.toLowerCase() === month.toLowerCase();
+    });
+
+    // Toggle showTable in the same setState call as filteredData
+    this.setState({
+      filteredData,
+      showTable: !showTable, // Toggle showTable based on its current value
+    });
   };
 
   downloadCSV = () => {
@@ -69,7 +82,10 @@ class Previous extends Component {
 
         // Add pc data rows
         data.pc.forEach((item) => {
-          const startTime = `"${(item.earliestStart || "").replace(/"/g, '""')}"`;
+          const startTime = `"${(item.earliestStart || "").replace(
+            /"/g,
+            '""'
+          )}"`;
           const endTime = `"${(item.latestEnd || "").replace(/"/g, '""')}"`;
           const totalTime = `"${(item.total_time || "").replace(/"/g, '""')}"`;
           const row = [startTime, endTime, totalTime];
@@ -82,7 +98,10 @@ class Previous extends Component {
         const pc_id = data.beneficiary[0].f_nm;
 
         // Extract month name from startTime
-        const monthName = new Date(data.pc[0].earliestStart).toLocaleString("default", { month: "long" });
+        const monthName = new Date(data.pc[0].earliestStart).toLocaleString(
+          "default",
+          { month: "long" }
+        );
 
         // Include month name in the fileName
         const fileName = `pc_${schoolName}_ein_${eiin}_Pc_Id_${pc_id}_Month_${monthName}.csv`;
@@ -109,32 +128,54 @@ class Previous extends Component {
   };
 
   render() {
-    const { data, showTable } = this.state;
+    const { data, showTable, filteredData } = this.state;
     const currentMonth = new Date().toLocaleString("default", {
       month: "long",
     });
 
     return (
       <div>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={this.toggleShowTable}
-          style={{ width: "200px", marginRight: "10px" }} // adjust the value as needed
-        >
-          {currentMonth}'s PC Data
-        </Button>
+        <div style={{ textAlign: "center" }}>
+          {data.length > 0 && (
+            <>
+              {Array.from(
+                new Set(
+                  data.map((item) =>
+                    new Date(item.earliestStart).toLocaleString("default", {
+                      month: "long",
+                    })
+                  )
+                )
+              ).map((month) => (
+                <div key={month} style={{ marginBottom: "10px" }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => this.showDataByMonth(month)}
+                    style={{
+                      width: "200px",
+                      display: "block",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {month}'s PC Data
+                  </Button>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
 
-        <Button
+        {/* <Button
           variant="contained"
           color="secondary"
           onClick={this.downloadCSV}
           style={{ width: "200px" }} // adjust the value as needed
         >
-          Download  {currentMonth} Data
-        </Button>
+          Download {currentMonth} Data
+        </Button> */}
 
-        {showTable && (
+        {showTable && filteredData.length > 0 && (
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -145,26 +186,21 @@ class Previous extends Component {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data
-                  .slice()
-                  .reverse()
-                  .map((item) => (
-                    <TableRow key={item._id}>
-                      <TableCell align="center">
-                        {new Date(item.earliestStart).toLocaleString("en-GB", {
-                          hour12: true,
-                        })}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {new Date(item.latestEnd).toLocaleString("en-GB", {
-                          hour12: true,
-                        })}
-                      </TableCell>
-
-                      <TableCell align="center">{item.total_time}</TableCell>
-                    </TableRow>
-                  ))}
+                {filteredData.map((item) => (
+                  <TableRow key={item._id}>
+                    <TableCell align="center">
+                      {new Date(item.earliestStart).toLocaleString("en-GB", {
+                        hour12: true,
+                      })}
+                    </TableCell>
+                    <TableCell align="center">
+                      {new Date(item.latestEnd).toLocaleString("en-GB", {
+                        hour12: true,
+                      })}
+                    </TableCell>
+                    <TableCell align="center">{item.total_time}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
