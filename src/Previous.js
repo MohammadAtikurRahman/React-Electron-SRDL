@@ -186,48 +186,57 @@ class Previous extends Component {
 
     return (
       <div>
-      <div style={{ textAlign: "center" }}>
-        {data.length > 0 && (
-          <>
-            {Array.from(
-              new Set(
-                data.map((item) =>
-                  new Date(item.earliestStart).toLocaleString("default", {
-                    month: "long",
-                  })
-                )
-              )
-            ).map((month) => (
-              <div key={month} style={{ marginBottom: "10px" }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => this.showDataByMonth(month)}
-                  style={{
-                    width: "200px",
-                    display: "block",
-                    marginBottom: "10px",
-                  }}
-                >
-                  {month}'s PC Data
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => this.downloadCSV(month)}
-                  style={{
-                    width: "200px",
-                    display: "block",
-                    marginBottom: "10px",
-                  }}
-                >
-                  Download {month}'s Data
-                </Button>
-              </div>
-            ))}
-          </>
-        )}
-      </div>
+    <div style={{ textAlign: "center" }}>
+  {data.length > 0 && (
+    <>
+      {Array.from(
+        new Set(
+          data.map((item) =>
+            new Date(item.earliestStart).toLocaleString("default", {
+              month: "long",
+            })
+          )
+        )
+      ).map((month) => (
+        <div 
+          key={month} 
+          style={{ 
+            marginBottom: "10px",
+            display: "flex",
+            justifyContent: "center",
+            gap: "10px"
+          }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => this.showDataByMonth(month)}
+            style={{
+              width: "200px",
+              display: "block",
+              marginBottom: "10px",
+            }}
+          >
+            {month}'s PC Data
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => this.downloadCSV(month)}
+            style={{
+              width: "200px",
+              display: "block",
+              marginBottom: "10px",
+            }}
+          >
+            Download {month}'s Data
+          </Button>
+        </div>
+      ))}
+    </>
+  )}
+</div>
+
     
       {showTable && filteredData.length > 0 && (
         <TableContainer component={Paper}>

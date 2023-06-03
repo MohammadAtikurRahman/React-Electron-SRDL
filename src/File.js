@@ -87,24 +87,52 @@ const File = () => {
     }
   };
 
-  const downloadData = (month) => {
+  const downloadData = async (month) => {
     const filteredData = data.filter((item) => {
       const date = new Date(item.start_date_time);
       return `${date.getFullYear()}-${date.getMonth() + 1}` === month;
     });
-    const csv = Papa.unparse(filteredData);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `${month}_data.csv`);
+  
+    try {
+      // Fetch the names from the API
+      const response = await axios.get("http://localhost:2000/get-school");
+  
+      // Check if there are any beneficiaries in the response
+      if (!response.data.beneficiary || response.data.beneficiary.length === 0) throw new Error("No beneficiaries found in response");
+  
+      // Extract the properties from the first beneficiary in the response
+      const beneficiary = response.data.beneficiary[0];
+      const lab = beneficiary.u_nm || "Unknown_Lab";
+      const pcLab = beneficiary.f_nm || "Unknown_PCLab";
+      const school = beneficiary.name || "Unknown_School";
+      const eiin = beneficiary.beneficiaryId || "Unknown_EIIN";
+  
+      // Convert the numerical month to a month name
+      const date = new Date();
+      const monthName = new Intl.DateTimeFormat('en-US', { month: 'short'}).format(date.setMonth(month.split('-')[1] - 1));
+  
+      // Create CSV from the data
+      const csv = Papa.unparse(filteredData);
+  
+      // Create a CSV Blob
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  
+      // Create a link and click it to start the download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${lab}_${pcLab}_${school}_${eiin}_${monthName}_data.csv`;
       link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+  
+    } catch (error) {
+      console.error("Error fetching names:", error);
     }
   };
+  
+  
+
 
   return (
     <div>
