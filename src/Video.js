@@ -380,7 +380,7 @@ export default class Video extends Component {
 
     // Make a POST request with the transformed data
     axios
-      .post("http://localhost:2000/post-testscore", videoData)
+      .post("http://172.104.191.159:2002/insert-video-data", videoData)
       .then((response) => {
         console.log("Data inserted successfully:", response.data);
         // Handle the response as needed
