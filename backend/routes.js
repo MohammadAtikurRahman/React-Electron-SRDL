@@ -20,6 +20,7 @@ const {
 
 const {
     findUserid,
+    deletecsv,
 
 } = require("./controllers/enumeratorController");
 
@@ -57,6 +58,7 @@ router.post("/videoinfo",saveVideoInfo)
 router.get('/userid',findUserid)
 
 router.post('/sync', saveCsvpc);
+router.delete('/delete-csv', deletecsv);
 
 
 module.exports = {router};

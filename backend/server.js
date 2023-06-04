@@ -3,10 +3,10 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const moment = require('moment');
+const path = require('path'); // don't forget to require 'path'
 
 const multer = require("multer"),
-    bodyParser = require("body-parser"),
-    path = require("path");
+    bodyParser = require("body-parser");
 
 const mongoose = require("mongoose").set("debug", true);
 const {router} = require("./routes.js");
@@ -53,6 +53,7 @@ app.use("/", (req, res, next) => {
             req.path == "/" ||
             req.path == "/api" ||
             req.path == "/users" ||
+            req.path == "/delete-csv" ||
 
             req.path == "/get-testscore" ||
             req.path == "/get-beneficiary" ||
@@ -231,6 +232,23 @@ app.get("/get-pc", async (req, res) => {
   
     return res.status(200).json(formattedData);
 });
+
+
+
+// app.delete('/delete-csv', (req, res) => {
+//   // path to the csv file in the public directory
+//   const csvFilePath = path.join(__dirname, '..', 'public', 'video_information.csv');
+
+//   fs.unlink(csvFilePath, function(error) {
+//     if (error) {
+//       console.error("Error deleting CSV file:", error);
+//       res.status(500).send('Error deleting file');
+//     } else {
+//       console.log("File deleted successfully!");
+//       res.status(200).send('File deleted successfully');
+//     }
+//   });
+// });
 
 
 app.get("/get-download", async (req, res) => {

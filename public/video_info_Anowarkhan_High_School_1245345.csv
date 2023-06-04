@@ -1,3 +1,0 @@
-_id,pc_name,eiin,school_name,pc_id,lab_id,video_name,location,pl_start,start_date_time,pl_end,end_date_time,duration
-"647c34187114a3810eb84727","localhost",1245345,"Anowarkhan High School",1,2,"Example Video 2","C:/path/to/video2.mp4","0","2023-06-01T12:11:00Z","10","2023-06-01T12:25:00Z","10"
-"647c34187114a3810eb84725","localhost",1245345,"Anowarkhan High School",1,2,"Example Video 1","C:/path/to/video1.mp4","2","2023-06-01T12:00:00Z","7","2023-06-01T12:10:00Z","1"

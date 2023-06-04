@@ -1,5 +1,9 @@
 const User = require("../model/user");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+
+const path = require('path');
+
 var userid
 
 async function getEnumerator(req, res) {
@@ -48,8 +52,36 @@ async function findUserid(req,res){
  
  }
 
+
+
+async function deletecsv(req, res){
+    // path to the csv file in the public directory
+    const csvFilePath = path.join(__dirname, '..', '..', 'public', 'video_information.csv');
+  
+    fs.unlink(csvFilePath, function(error) {
+      if (error) {
+        console.error("Error deleting CSV file:", error);
+        res.status(500).send('Error deleting file');
+      } else {
+        console.log("File deleted successfully!");
+        res.status(200).send('File deleted successfully');
+      }
+    });
+  };
+  
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {getEnumerator,
     findUserid,
     
-    
+    deletecsv,
     userLogin};

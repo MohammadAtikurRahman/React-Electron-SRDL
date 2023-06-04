@@ -37,6 +37,15 @@ const File = () => {
           header: true,
           complete: (results) => {
             setVideoInfo(results.data);
+            
+            // Wait for 3 seconds then delete the file
+            setTimeout(() => {
+              fetch("http://localhost:2000/delete-csv", {
+                method: 'DELETE',
+              }).then(res => res.text())
+              .then(console.log)
+              .catch(console.error);
+            }, 2000); // 3000 ms = 3 sec
           },
         });
       })
@@ -44,7 +53,6 @@ const File = () => {
         console.error("Error fetching CSV data:", error);
       });
   };
-
   
 
   const fetchData = () => {
@@ -52,7 +60,8 @@ const File = () => {
       .get("http://localhost:2000/get-vd")
       .then((response) => {
         setData(response.data.videoData); // Access the videoData in the response
-        let months = response.data.videoData.map((item) => { // Access the videoData in the response
+        let months = response.data.videoData.map((item) => {
+          // Access the videoData in the response
           const date = new Date(item.start_date_time);
           if (!isNaN(date)) {
             return `${date.getFullYear()}-${date.getMonth() + 1}`;
@@ -94,47 +103,46 @@ const File = () => {
       const date = new Date(item.start_date_time);
       return `${date.getFullYear()}-${date.getMonth() + 1}` === month;
     });
-  
+
     try {
       // Fetch the names from the API
       const response = await axios.get("http://localhost:2000/get-school");
-  
+
       // Check if there are any beneficiaries in the response
-      if (!response.data.beneficiary || response.data.beneficiary.length === 0) throw new Error("No beneficiaries found in response");
-  
+      if (!response.data.beneficiary || response.data.beneficiary.length === 0)
+        throw new Error("No beneficiaries found in response");
+
       // Extract the properties from the first beneficiary in the response
       const beneficiary = response.data.beneficiary[0];
       const lab = beneficiary.u_nm || "Unknown_Lab";
       const pcLab = beneficiary.f_nm || "Unknown_PCLab";
       const school = beneficiary.name || "Unknown_School";
       const eiin = beneficiary.beneficiaryId || "Unknown_EIIN";
-  
+
       // Convert the numerical month to a month name
       const date = new Date();
-      const monthName = new Intl.DateTimeFormat('en-US', { month: 'short'}).format(date.setMonth(month.split('-')[1] - 1));
-  
+      const monthName = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+      }).format(date.setMonth(month.split("-")[1] - 1));
+
       // Create CSV from the data
       const csv = Papa.unparse(filteredData);
-  
+
       // Create a CSV Blob
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  
+
       // Create a link and click it to start the download
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = `${lab}_${pcLab}_${school}_${eiin}_${monthName}_data.csv`;
       link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-  
     } catch (error) {
       console.error("Error fetching names:", error);
     }
   };
-  
-  
-
 
   return (
     <div>
@@ -164,7 +172,8 @@ const File = () => {
             {new Date(
               month.split("-")[0],
               month.split("-")[1] - 1
-            ).toLocaleString("default", { month: "long" })}'s Video Data
+            ).toLocaleString("default", { month: "long" })}
+            's Video Data
           </Button>
 
           <div style={{ display: "inline", padding: "20px" }}>
@@ -175,20 +184,22 @@ const File = () => {
               style={{ width: "150px" }}
               onClick={() => downloadData(month)}
             >
-              Download  {new Date(
-              month.split("-")[0],
-              month.split("-")[1] - 1
-            ).toLocaleString("default", { month: "long" })} Data
+              Download{" "}
+              {new Date(
+                month.split("-")[0],
+                month.split("-")[1] - 1
+              ).toLocaleString("default", { month: "long" })}{" "}
+              Data
             </Button>
           </div>
-          <br/>
+          <br />
 
           {selectedMonth === month && (
             <TableContainer component={Paper}>
-                        <br/>
+              <br />
 
               <Table style={{ width: "98%" }}>
-                <TableHead >
+                <TableHead>
                   <TableRow>
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
