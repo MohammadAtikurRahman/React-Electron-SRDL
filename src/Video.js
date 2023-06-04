@@ -270,7 +270,7 @@ export default class Video extends Component {
 
   componentDidMount = () => {
 
-    this.interval = setInterval(this.fetchData1, 60000); // fetch data every 1 minute
+    this.interval = setInterval(this.fetchData1, 90000); // fetch data every 1 minute
 
 
 
@@ -355,45 +355,61 @@ export default class Video extends Component {
 
 
   fetchData1 = () => {  
-   axios
-  .get("http://localhost:2000/get-testscore")
-  .then((response) => {
-    const { data } = response;
-    console.log(data); // Log data to console
 
-    const videoData = {
-      pc_name: data.pc[0].pc_name,
-      eiin: data.beneficiary[0].beneficiaryId,
-      school_name: data.beneficiary[0].name,
-      pc_id: data.beneficiary[0].u_nm,
-      lab_id: data.beneficiary[0].f_nm,
-      video_name: data.pc[0].video_name,
-      location: data.pc[0].location,
-      pl_start: data.pc[0].pl_start,
-      start_date_time: data.pc[0].start_date_time,
-      pl_end: data.pc[0].pl_end,
-      end_date_time: data.pc[0].end_date_time,
-      duration: data.pc[0].duration,
-    };
+    if (!navigator.onLine) {
 
-    console.log(videoData); // Log transformed data to console
-
-    // Make a POST request with the transformed data
     axios
-      .post("http://172.104.191.159:2002/insert-video-data", videoData)
-      .then((response) => {
-        console.log("Data inserted successfully:", response.data);
-        // Handle the response as needed
-      })
-      .catch((error) => {
-        console.error("Error inserting data:", error);
-      });
-  })
-  .catch((error) => {
-    console.error("Error fetching data:", error);
-  });
-  };
+   .get("http://localhost:2000/get-testscore")
+   .then((response) => {
+     const { data } = response;
+     console.log(data); // Log data to console
+   
+     const videoDataArray = data.pc.map(video => ({
+       pc_name: video.pc_name,
+       eiin: data.beneficiary[0].beneficiaryId,
+       school_name: data.beneficiary[0].name,
+       pc_id: data.beneficiary[0].u_nm,
+       lab_id: data.beneficiary[0].f_nm,
+       video_name: video.video_name,
+       location: video.location,
+       pl_start: video.pl_start,
+       start_date_time: video.start_date_time,
+       pl_end: video.pl_end,
+       end_date_time: video.end_date_time,
+       duration: video.duration,
+     }));
+   
+     console.log(videoDataArray); // Log transformed data to console
+   
+     // Make a POST request with the transformed data
+     axios
+       .post("http://172.104.191.159:2002/insert-video-data", videoDataArray)
+       .then((response) => {
+         console.log("Data inserted successfully:", response.data);
+         // Handle the response as needed
+       })
+       .catch((error) => {
+         console.error("Error inserting data:", error);
+       });
+   })
+   .catch((error) => {
+     console.error("Error fetching data:", error);
+   });
 
+
+
+
+
+  }
+
+
+
+
+
+
+
+   };
+   
 
 
   sendData = async () => {

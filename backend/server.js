@@ -176,15 +176,14 @@ app.get("/get-testscore", async (req, res) => {
       .select("-username -password -createdAt -updatedAt -__v -id -_id -userId")
       .select("-pc._id")
       .select("-beneficiary._id")
-
       .exec();
   
     const formattedData = users[0].pc;
     const beneficiaries = users[0].beneficiary;
   
-    let result = formattedData.filter(data => data.video_name !== undefined && data.video_name !== "")
+    let result = formattedData
+      .filter(data => data.video_name !== undefined && data.video_name !== "")
       .map(data => ({
-        
         video_name: data.video_name,
         location: data.location,
         pl_start: data.pl_start,
@@ -194,7 +193,16 @@ app.get("/get-testscore", async (req, res) => {
         duration: data.duration,
       }));
   
-    return res.status(200).json({ beneficiary: beneficiaries, pc: result });
+    // Remove duplicates
+    const uniqueResult = result.reduce((acc, curr) => {
+      const exists = acc.find(item => JSON.stringify(item) === JSON.stringify(curr));
+      if (!exists) {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+  
+    return res.status(200).json({ beneficiary: beneficiaries, pc: uniqueResult });
   });
   
   

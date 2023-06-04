@@ -356,7 +356,7 @@ export default class Dashboard extends Component {
     axios.get("http://localhost:2000/get-school")
       .then((response) => {
         const { data } = response;
-        console.log(data); // log the fetched data in the console
+        console.log("data checking",data); // log the fetched data in the console
   
         const beneficiary = data.beneficiary[0]; // Since it's an array with one object
         const pcs = data.pc;
