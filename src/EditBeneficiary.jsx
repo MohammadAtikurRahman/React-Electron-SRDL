@@ -85,7 +85,7 @@ export function EditBeneficiary(props) {
             maxWidth="xs">
             <DialogContent style={{ padding: "40px" }}>
                 <DialogTitle id="alert-dialog-title">Edit School</DialogTitle>
-                <TextField
+                {/* <TextField
                     id="standard-basic"
                     type="text"
                     autoComplete="off"
@@ -95,7 +95,7 @@ export function EditBeneficiary(props) {
                     placeholder="User Name"
                     required
                     fullWidth
-                />
+                /> */}
                    <br />
         <br />
                 <TextField
