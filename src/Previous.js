@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Papa from 'papaparse';
+import Papa from "papaparse";
 
 import axios from "axios";
 import {
@@ -18,7 +18,7 @@ import { saveAs } from "file-saver";
 class Previous extends Component {
   state = {
     data: [],
-    showTable: false,
+    showTables: {},
     filteredData: [],
   };
 
@@ -38,9 +38,9 @@ class Previous extends Component {
       console.error("Error fetching data:", error);
     }
   };
-  
+
   showDataByMonth = (month) => {
-    const { data, showTable } = this.state;
+    const { data, showTables } = this.state;
     const filteredData = data.filter((item) => {
       const itemMonth = new Date(item.earliestStart).toLocaleString("default", {
         month: "long",
@@ -49,9 +49,11 @@ class Previous extends Component {
     });
 
     // Toggle showTable in the same setState call as filteredData
-    this.setState({
-      filteredData,
-      showTable: !showTable, // Toggle showTable based on its current value
+    this.setState((prevState) => {
+      const currentVisibility = !!prevState.showTables[month];
+      return {
+        showTables: { ...prevState.showTables, [month]: !currentVisibility },
+      };
     });
   };
 
@@ -127,7 +129,7 @@ class Previous extends Component {
   // };
   downloadCSV = async (month) => {
     const { data } = this.state;
-  
+
     // Filter the data for the specified month
     const monthData = data.filter((item) => {
       const itemMonth = new Date(item.earliestStart).toLocaleString("default", {
@@ -135,41 +137,40 @@ class Previous extends Component {
       });
       return itemMonth.toLowerCase() === month.toLowerCase();
     });
-  
+
     // If there's no data for the month, return early
     if (monthData.length === 0) return;
-  
+
     try {
       // Fetch the names from the API
       const response = await axios.get("http://localhost:2000/get-school");
-  
+
       // Check if there are any beneficiaries in the response
-      if (!response.data.beneficiary || response.data.beneficiary.length === 0) throw new Error("No beneficiaries found in response");
-  
+      if (!response.data.beneficiary || response.data.beneficiary.length === 0)
+        throw new Error("No beneficiaries found in response");
+
       // Extract the properties from the first beneficiary in the response
       const beneficiary = response.data.beneficiary[0];
       const lab = beneficiary.u_nm || "Unknown_Lab";
       const pcLab = beneficiary.f_nm || "Unknown_PCLab";
       const school = beneficiary.name || "Unknown_School";
       const eiin = beneficiary.beneficiaryId || "Unknown_EIIN";
-  
+
       // Convert the data to CSV
       const csv = Papa.unparse(monthData);
-  
+
       // Create a CSV Blob
       const blob = new Blob([csv], { type: "text/csv" });
-  
+
       // Create a link and click it to start the download
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `${lab}_${pcLab}_${school}_${eiin}_${month}_data.csv`;
+      link.download = `pc_${school}_ein_${eiin}__pc_id_${pcLab}_Month_${month}.csv`;
       link.click();
     } catch (error) {
       console.error("Error fetching names:", error);
     }
   };
-  
-  
 
   downloadData = () => {
     const parser = new Parser();
@@ -179,101 +180,116 @@ class Previous extends Component {
   };
 
   render() {
-    const { data, showTable, filteredData } = this.state;
+    const { data, showTables, filteredData } = this.state;
     const currentMonth = new Date().toLocaleString("default", {
       month: "long",
     });
 
     return (
       <div>
-    <div style={{ textAlign: "center" }}>
-  {data.length > 0 && (
-    <>
-      {Array.from(
-        new Set(
-          data.map((item) =>
-            new Date(item.earliestStart).toLocaleString("default", {
-              month: "long",
-            })
-          )
-        )
-      ).map((month) => (
-        <div 
-          key={month} 
-          style={{ 
-            marginBottom: "10px",
-            display: "flex",
-            justifyContent: "center",
-            gap: "10px"
-          }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => this.showDataByMonth(month)}
-            style={{
-              width: "200px",
-              display: "block",
-              marginBottom: "10px",
-            }}
-          >
-            {month}'s PC Data
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => this.downloadCSV(month)}
-            style={{
-              width: "200px",
-              display: "block",
-              marginBottom: "10px",
-            }}
-          >
-            Download {month}'s Data
-          </Button>
-        </div>
-      ))}
-    </>
-  )}
-</div>
+        {data.length > 0 &&
+          Array.from(
+            new Set(
+              data.map((item) =>
+                new Date(item.earliestStart).toLocaleString("default", {
+                  month: "long",
+                })
+              )
+            )
+          ).map((month, index) => (
+            <React.Fragment key={index}>
+              <div
+                style={{
+                  marginBottom: "10px",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "10px",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => this.showDataByMonth(month)}
+                  style={{
+                    width: "200px",
+                    display: "block",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {month}'s PC Data
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => this.downloadCSV(month)}
+                  style={{
+                    width: "200px",
+                    display: "block",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Download {month}'s Data
+                </Button>
+              </div>
 
-    
-      {showTable && filteredData.length > 0 && (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell align="center">Start Date & Time</TableCell>
-                <TableCell align="center">Last Usage Date & Time</TableCell>
-                <TableCell align="center">Duration</TableCell>
-                {/* <TableCell align="center">School Name</TableCell>
-                <TableCell align="center">PC Name</TableCell> */}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredData.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell align="center">
-                    {new Date(item.earliestStart).toLocaleString("en-GB", {
-                      hour12: true,
-                    })}
-                  </TableCell>
-                  <TableCell align="center">
-                    {new Date(item.latestEnd).toLocaleString("en-GB", {
-                      hour12: true,
-                    })}
-                  </TableCell>
-                  <TableCell align="center">{item.total_time}</TableCell>
-                  {/* <TableCell align="center">{item.name}</TableCell>
-                  <TableCell align="center">{item.m_nm}</TableCell> */}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </div>
-    
+              {showTables[month] && (
+                <TableContainer component={Paper} elevation={0}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="center">Start Date & Time</TableCell>
+                        <TableCell align="center">
+                          Last Usage Date & Time
+                        </TableCell>
+                        <TableCell align="center">Duration</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {data
+                        .slice()
+                        .reverse()
+                        .map(
+                          (item) =>
+                            new Date(item.earliestStart).toLocaleString(
+                              "default",
+                              {
+                                month: "long",
+                              }
+                            ) === month && (
+                              <TableRow key={item._id}>
+                                <TableCell align="center">
+                                  <b>
+                                    {new Date(
+                                      item.earliestStart
+                                    ).toLocaleString("en-GB", {
+                                      hour12: true,
+                                    })}
+                                  </b>
+                                </TableCell>
+                                <TableCell align="center">
+                                  <b>
+                                    {new Date(item.latestEnd).toLocaleString(
+                                      "en-GB",
+                                      {
+                                        hour12: true,
+                                      }
+                                    )}
+                                  </b>
+                                </TableCell>
+                                <TableCell align="center">
+                                  <b>{item.total_time}</b>
+                                </TableCell>
+                              </TableRow>
+                            )
+                        )}
+                    </TableBody>
+                  </Table>
+                  <div style={{ padding: "20px" }}></div>
+                </TableContainer>
+              )}
+            </React.Fragment>
+          ))}
+      </div>
     );
   }
 }

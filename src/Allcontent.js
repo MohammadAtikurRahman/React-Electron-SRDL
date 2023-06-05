@@ -372,7 +372,7 @@ export default class Allcontent extends Component {
         const eiin = data.beneficiary[0].beneficiaryId;
         const pc_id = data.beneficiary[0].f_nm;
 
-        const fileName = `all_pc_${schoolName}_ein_${eiin}_Pc_Id_${pc_id}.csv`; 
+        const fileName = `all_pc_${schoolName}_ein_${eiin}_Pc_Id_${pc_id}.csv`;
 
         // Create a download link
         const encodedUri = encodeURI(csvContent);
@@ -469,7 +469,6 @@ export default class Allcontent extends Component {
           />
         )}
 
-        
         <AppBar position="static" style={{ backgroundColor: "#1F8A70" }}>
           <Toolbar>
             {this.state?.filteredBeneficiary?.reverse().map((row, index) => (
@@ -590,18 +589,16 @@ export default class Allcontent extends Component {
                   </TableCell>
                 </TableRow>
               </TableHead> */}
-{/* 
+              {/* 
               <TableBody>
                 {this.state?.filteredBeneficiary?.map((row, index) => (
                   <TableRow key={index}></TableRow>
                 ))}
               </TableBody> */}
             </Table>
-  
-           <div style={{  padding: "30px"}}>
 
-           <Previous />
-
+            <div style={{ padding: "30px" }}>
+              <Previous />
             </div>
 
             {/* <Pagination
