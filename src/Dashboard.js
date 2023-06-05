@@ -725,13 +725,31 @@ export default class Dashboard extends Component {
                       </TableCell>
 
                       <TableCell align="center">
+
+                         <b>
+
                         {new Date(lastData.latestEnd).toLocaleString("en-GB", {
                           hour12: true,
                         })}
+                        
+                        </b>
+
+
                       </TableCell>
 
+                     
+
                       <TableCell align="center" component="th" scope="row">
+
+
+                        <b>
+
                         {this.convertToHoursAndMinutes(ttime.total_time)}
+
+                        
+</b>
+
+
                       </TableCell>
                     </TableRow>
                   ))}
