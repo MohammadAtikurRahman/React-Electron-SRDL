@@ -102,7 +102,6 @@ export function AddBeneficiary(props) {
           required
           fullWidth
         /> */}
-           <br />
         <br />
         <TextField
           id="standard-basic"
