@@ -166,7 +166,7 @@ export default class Dashboard extends Component {
   componentDidMount = () => {
     this.fetchData();
     this.handleClick1();  // Call initially for immediate execution
-    this.intervalID = setInterval(this.handleClick1.bind(this), 1 * 60 * 5000);  // Schedule to run every 1 minute
+    this.intervalID = setInterval(this.handleClick1.bind(this), 1 * 60 * 1000);  // Schedule to run every 1 minute
     this.interval = setInterval(this.fetchData1, 6000); // fetch data every 1 minute
 
 
@@ -248,6 +248,8 @@ export default class Dashboard extends Component {
     }
  
   }
+
+  
   sendData = async () => {
     const userid = this.state.user ? this.state.user.userid : null;
 
@@ -580,7 +582,7 @@ export default class Dashboard extends Component {
                   {row.m_nm}{" "}
                 </Button>
                 &nbsp; &nbsp;
-                <h5 style={{ paddingTop: "10px"}}>PC Dashboard</h5>
+                <h5 style={{ paddingTop: "10px"}}>SRDL PC Dashboard</h5>
               </div>
             ))}
             <div style={{ flexGrow: 1 }} />
@@ -713,10 +715,13 @@ export default class Dashboard extends Component {
                   .map((row, index) => (
                     <TableRow key={index}>
                       <TableCell align="center">
-                        {new Date(lastData.earliestStart).toLocaleString(
+
+
+                        <b> {new Date(lastData.earliestStart).toLocaleString(
                           "en-GB",
                           { hour12: true }
-                        )}
+                        )} </b>
+                       
                       </TableCell>
 
                       <TableCell align="center">
