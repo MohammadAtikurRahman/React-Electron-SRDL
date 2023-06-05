@@ -37,14 +37,15 @@ const File = () => {
           header: true,
           complete: (results) => {
             setVideoInfo(results.data);
-            
+
             // Wait for 3 seconds then delete the file
             setTimeout(() => {
               fetch("http://localhost:2000/delete-csv", {
-                method: 'DELETE',
-              }).then(res => res.text())
-              .then(console.log)
-              .catch(console.error);
+                method: "DELETE",
+              })
+                .then((res) => res.text())
+                .then(console.log)
+                .catch(console.error);
             }, 2000); // 3000 ms = 3 sec
           },
         });
@@ -53,7 +54,6 @@ const File = () => {
         console.error("Error fetching CSV data:", error);
       });
   };
-  
 
   const fetchData = () => {
     axios
@@ -152,7 +152,7 @@ const File = () => {
         size="small"
         onClick={insertAndFetchData}
       >
-        Refresh The Data
+        Load The Data
       </Button>
       <br />
       <br />
@@ -160,7 +160,7 @@ const File = () => {
       <br />
       <br />
 
-      {uniqueMonths.map((month, index) => (
+      {uniqueMonths.slice().reverse().map((month, index) => (
         <Box margin={2} key={index}>
           <Button
             variant="contained"
@@ -181,7 +181,7 @@ const File = () => {
               variant="contained"
               color="primary"
               size="small"
-              style={{ width: "150px" }}
+              style={{ width: "220px" }}
               onClick={() => downloadData(month)}
             >
               Download{" "}
@@ -204,37 +204,37 @@ const File = () => {
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
                     >
-                      Video Name
+                    <b>       Video Name </b>
                     </TableCell>
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
                     >
-                      File Location
+                   <b>      File Location  </b>
                     </TableCell>
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
                     >
-                      Player Starting
+                     <b>Player Starting    </b>    
                     </TableCell>
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
                     >
-                      Start Video Time
+                         <b>  Start Video Time  </b>  
                     </TableCell>
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
                     >
-                      Player Ending
+                       <b>  Player Ending  </b> 
                     </TableCell>
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
                     >
-                      End Video Time
+                     <b>  End Video Time </b>  
                     </TableCell>
                     <TableCell
                       style={{ border: "1px solid black", fontSize: "10px" }}
                     >
-                      Duration
+                    <b>  Duration </b>
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -255,7 +255,7 @@ const File = () => {
                             fontSize: "10px",
                           }}
                         >
-                          {item.video_name}
+                          <b> {item.video_name} </b>
                         </TableCell>
                         <TableCell
                           style={{
@@ -263,7 +263,7 @@ const File = () => {
                             fontSize: "10px",
                           }}
                         >
-                          {item.location}
+                          <b> {item.location} </b>
                         </TableCell>
                         <TableCell
                           style={{
@@ -271,7 +271,7 @@ const File = () => {
                             fontSize: "10px",
                           }}
                         >
-                          {item.pl_start}
+                          <b> {item.pl_start} </b>
                         </TableCell>
                         <TableCell
                           style={{
@@ -279,7 +279,7 @@ const File = () => {
                             fontSize: "10px",
                           }}
                         >
-                          {item.start_date_time}
+                          <b> {item.start_date_time} </b>
                         </TableCell>
                         <TableCell
                           style={{
@@ -287,7 +287,7 @@ const File = () => {
                             fontSize: "10px",
                           }}
                         >
-                          {item.pl_end}
+                          <b> {item.pl_end} </b>
                         </TableCell>
                         <TableCell
                           style={{
@@ -295,7 +295,7 @@ const File = () => {
                             fontSize: "10px",
                           }}
                         >
-                          {item.end_date_time}
+                          <b> {item.end_date_time} </b>
                         </TableCell>
                         <TableCell
                           style={{
@@ -303,7 +303,7 @@ const File = () => {
                             fontSize: "10px",
                           }}
                         >
-                          {item.duration}
+                          <b> {item.duration}</b>
                         </TableCell>
                       </TableRow>
                     ))}
