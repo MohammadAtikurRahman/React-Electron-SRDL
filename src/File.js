@@ -31,22 +31,17 @@ const File = () => {
 
   const fetchCSVData = () => {
     fetch("/video_information.csv")
-      .then((response) => response.text())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("HTTP error " + response.status);
+        }
+        return response.text();
+      })
       .then((csvData) => {
         Papa.parse(csvData, {
           header: true,
           complete: (results) => {
             setVideoInfo(results.data);
-
-            // Wait for 3 seconds then delete the file
-            setTimeout(() => {
-              fetch("http://localhost:2000/delete-csv", {
-                method: "DELETE",
-              })
-                .then((res) => res.text())
-                .then(console.log)
-                .catch(console.error);
-            }, 2000); // 3000 ms = 3 sec
           },
         });
       })
@@ -54,6 +49,21 @@ const File = () => {
         console.error("Error fetching CSV data:", error);
       });
   };
+  
+  const deleteCSVFile = () => {
+    fetch("http://localhost:2000/delete-csv", {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("HTTP error " + res.status);
+        }
+        return res.text();
+      })
+      .then(console.log)
+      .catch(console.error);
+  };
+  
 
   const fetchData = () => {
     axios
@@ -77,6 +87,11 @@ const File = () => {
   };
 
   const insertAndFetchData = () => {
+    fetchCSVData();
+    setTimeout(deleteCSVFile, 3000); // Delete CSV file after 3 seconds
+
+
+
     axios
       .post("http://localhost:2000/videoinfo", {
         userId: user ? user.userid : null,
@@ -89,7 +104,7 @@ const File = () => {
         console.error("Error inserting data:", error);
       });
   };
-
+  
   const selectMonth = (month) => {
     if (selectedMonth === month) {
       setSelectedMonth("");
