@@ -167,10 +167,7 @@ app.get("/get-all", (req, res) => {
     });
 });
 
-app.get("/get-enumerator", async (req, res) => {
-    let users = await user.find({}).select("-beneficiary");
-    return res.status(200).json(users);
-});
+
 
 app.get("/get-testscore", async (req, res) => {
     let users = await user.find({})
@@ -234,21 +231,6 @@ app.get("/get-pc", async (req, res) => {
 });
 
 
-
-// app.delete('/delete-csv', (req, res) => {
-//   // path to the csv file in the public directory
-//   const csvFilePath = path.join(__dirname, '..', 'public', 'video_information.csv');
-
-//   fs.unlink(csvFilePath, function(error) {
-//     if (error) {
-//       console.error("Error deleting CSV file:", error);
-//       res.status(500).send('Error deleting file');
-//     } else {
-//       console.log("File deleted successfully!");
-//       res.status(200).send('File deleted successfully');
-//     }
-//   });
-// });
 
 
 app.get("/get-download", async (req, res) => {
@@ -446,20 +428,6 @@ app.get("/get-beneficiary", async (req, res) => {
     return res.status(200).json(extact_data);
 });
 
-app.get("/get-login", async (req, res) => {
-    // let users = await user.find({}).select("-password").select("-username").select("-beneficiary.name").select("-beneficiary.f_nm")
-    // .select("-beneficiary.ben_nid").select("-beneficiary.ben_id").select("-beneficiary.sl").select("-beneficiary.m_nm").select("-beneficiary.age").select("-beneficiary.dis")
-    // .select("-beneficiary.sub_dis").select("-beneficiary.uni").select("-beneficiary.vill").select("-beneficiary.relgn").select("-beneficiary.job").select("-beneficiary.gen")
-
-    // .select("-beneficiary.mob").select("-beneficiary.pgm").select("-beneficiary.pass").select("-beneficiary.bank").select("-beneficiary.branch").select("-beneficiary.r_out")
-
-    // .select("-beneficiary.mob_1").select("-beneficiary.ben_sts").select("-beneficiary.nid_sts").select("-beneficiary.a_sts").select("-beneficiary.u_nm")
-
-    // .select("-beneficiary.dob").select("-beneficiary.accre").select("-beneficiary.f_allow").select("-beneficiary.mob_own").select("-beneficiary.test")
-
-    let users = await user.find({}).select("-beneficiary");
-    return res.status(200).json(users);
-});
 
 app.get("/enumerator", (req, res) => {
     product.find((err, val) => {

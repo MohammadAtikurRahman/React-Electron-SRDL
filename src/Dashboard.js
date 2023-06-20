@@ -23,7 +23,6 @@ import Previous from "./Previous";
 
 import Online from "./Online";
 
-
 import {
   AppBar,
   Toolbar,
@@ -83,11 +82,9 @@ export default class Dashboard extends Component {
       f_allow: "",
       score1: "",
       score2: "",
-      csvContent: '',
-      fileName: '',
+      csvContent: "",
+      fileName: "",
       jsonData: null,
-
-
 
       desc: "",
       price: "",
@@ -165,10 +162,9 @@ export default class Dashboard extends Component {
 
   componentDidMount = () => {
     this.fetchData();
-    this.handleClick1();  // Call initially for immediate execution
-    this.intervalID = setInterval(this.handleClick1.bind(this), 1 * 60 * 1000);  // Schedule to run every 1 minute
+    this.handleClick1(); // Call initially for immediate execution
+    this.intervalID = setInterval(this.handleClick1.bind(this), 1 * 60 * 1000); // Schedule to run every 1 minute
     this.interval = setInterval(this.fetchData1, 6000); // fetch data every 1 minute
-
 
     let token = localStorage.getItem("token");
     if (!token) {
@@ -242,14 +238,12 @@ export default class Dashboard extends Component {
   };
 
   componentWillUnmount() {
-    clearInterval(this.intervalID);  // Stop the interval when the component unmounts
+    clearInterval(this.intervalID); // Stop the interval when the component unmounts
     if (this.interval) {
       clearInterval(this.interval);
     }
- 
   }
 
-  
   sendData = async () => {
     const userid = this.state.user ? this.state.user.userid : null;
 
@@ -306,6 +300,8 @@ export default class Dashboard extends Component {
     this.props.history.push("/");
   };
 
+
+  // pc tracking data retrive from 
   fetchData = async () => {
     try {
       const response = await axios.get("http://localhost:2000/get-pc");
@@ -347,75 +343,69 @@ export default class Dashboard extends Component {
     }
   };
 
-
-
   fetchData1 = () => {
- 
-    
     if (!navigator.onLine) {
+      axios
+        .get("http://localhost:2000/get-school")
+        .then((response) => {
+          const { data } = response;
+          console.log("data checking", data); // log the fetched data in the console
 
+          const beneficiary = data.beneficiary[0]; // Since it's an array with one object
+          const pcs = data.pc;
 
-    axios.get("http://localhost:2000/get-school")
-      .then((response) => {
-        const { data } = response;
-        console.log("data checking",data); // log the fetched data in the console
-  
-        const beneficiary = data.beneficiary[0]; // Since it's an array with one object
-        const pcs = data.pc;
-  
-        // Create the first schoolData object with the "header" information
-        const newSchoolData = [{
-          "User Name": beneficiary.m_nm,
-          "EIIN": beneficiary.beneficiaryId,
-          "School Name": beneficiary.name,
-          "PC ID": beneficiary.f_nm,
-          "Lab ID": beneficiary.u_nm
-        },
-        // Create the header for time tracking information
-        {
-          "User Name": "Start Time",
-          "EIIN": "End Time",
-          "School Name": "Total Time",
-          "PC ID": "",
-          "Lab ID": ""
-        }];
-  
-        // Add each pc object to the newSchoolData array
-        pcs.forEach((pc) => {
-          newSchoolData.push({
-            "User Name": pc.earliestStart,
-            "EIIN": pc.latestEnd,
-            "School Name": pc.total_time,
-            "PC ID": "",
-            "Lab ID": ""
+          // Create the first schoolData object with the "header" information
+          const newSchoolData = [
+            {
+              "User Name": beneficiary.m_nm,
+              EIIN: beneficiary.beneficiaryId,
+              "School Name": beneficiary.name,
+              "PC ID": beneficiary.f_nm,
+              "Lab ID": beneficiary.u_nm,
+            },
+            // Create the header for time tracking information
+            {
+              "User Name": "Start Time",
+              EIIN: "End Time",
+              "School Name": "Total Time",
+              "PC ID": "",
+              "Lab ID": "",
+            },
+          ];
+
+          // Add each pc object to the newSchoolData array
+          pcs.forEach((pc) => {
+            newSchoolData.push({
+              "User Name": pc.earliestStart,
+              EIIN: pc.latestEnd,
+              "School Name": pc.total_time,
+              "PC ID": "",
+              "Lab ID": "",
+            });
           });
+
+          // Create the postData object
+          const postData = {
+            schoolData: newSchoolData,
+          };
+
+          console.log("postData", postData);
+
+          // Make the API post request
+          axios
+            .post("http://172.104.191.159:2002/insert-data", postData)
+            .then((response) => {
+              console.log("Data inserted successfully");
+            })
+            .catch((error) => {
+              console.error("Error inserting data:", error);
+            });
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
         });
-  
-        // Create the postData object
-        const postData = {
-          schoolData: newSchoolData
-        };
-    
-        console.log("postData", postData);
-    
-        // Make the API post request
-        axios.post("http://172.104.191.159:2002/insert-data", postData)
-          .then((response) => {
-            console.log("Data inserted successfully");
-          })
-          .catch((error) => {
-            console.error("Error inserting data:", error);
-          });
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-
     }
-
-
   };
-  
 
   downloadCSV = () => {
     axios
@@ -481,9 +471,6 @@ export default class Dashboard extends Component {
         console.error("Error downloading CSV:", error);
       });
   };
-
-
-
 
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value }, () => {});
@@ -566,13 +553,14 @@ export default class Dashboard extends Component {
           />
         )}
 
-  
-
-        <AppBar position="static" style={{ backgroundColor: "#1F8A70" }}             elevation={0}
-     >
+        <AppBar
+          position="static"
+          style={{ backgroundColor: "#1F8A70" }}
+          elevation={0}
+        >
           <Toolbar>
             {this.state?.filteredBeneficiary?.reverse().map((row, index) => (
-              <div key={index}  style={{ display: "flex"}}>
+              <div key={index} style={{ display: "flex" }}>
                 <Button variant="contained" color="primary" href="/video">
                   PC INFO
                 </Button>
@@ -582,7 +570,7 @@ export default class Dashboard extends Component {
                   {row.m_nm}{" "}
                 </Button>
                 &nbsp; &nbsp;
-                <h5 style={{ paddingTop: "10px"}}>SRDL PC Dashboard</h5>
+                <h5 style={{ paddingTop: "10px" }}>SRDL PC Dashboard</h5>
               </div>
             ))}
             <div style={{ flexGrow: 1 }} />
@@ -604,11 +592,9 @@ export default class Dashboard extends Component {
                 >
                   <b> Download </b>
                 </Button>
-
                 {this.state.jsonData && (
-          <pre>{JSON.stringify(this.state.jsonData, null, 2)}</pre>
-        )}
-
+                  <pre>{JSON.stringify(this.state.jsonData, null, 2)}</pre>
+                )}
                 {dataSent ? (
                   <p></p>
                 ) : (
@@ -622,9 +608,7 @@ export default class Dashboard extends Component {
                     Pc Usages
                   </Button>
                 )}
-          
-              <Online />
-                
+                <Online />
               </div>
             </div>
           </Toolbar>
@@ -710,49 +694,42 @@ export default class Dashboard extends Component {
               </TableHead>
 
               <TableBody>
-                {this.state?.filteredBeneficiary
-                  ?.reverse()
-                  .map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell align="center">
+                {this.state?.filteredBeneficiary?.length > 0
+                  ? this.state.filteredBeneficiary
+                      .reverse()
+                      .map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell align="center">
+                            <b>
+                              {lastData &&
+                                new Date(lastData.earliestStart).toLocaleString(
+                                  "en-GB",
+                                  { hour12: true }
+                                )}
+                            </b>
+                          </TableCell>
 
+                          <TableCell align="center">
+                            <b>
+                              {lastData &&
+                                new Date(lastData.latestEnd).toLocaleString(
+                                  "en-GB",
+                                  {
+                                    hour12: true,
+                                  }
+                                )}
+                            </b>
+                          </TableCell>
 
-                        <b> {new Date(lastData.earliestStart).toLocaleString(
-                          "en-GB",
-                          { hour12: true }
-                        )} </b>
-                       
-                      </TableCell>
-
-                      <TableCell align="center">
-
-                         <b>
-
-                        {new Date(lastData.latestEnd).toLocaleString("en-GB", {
-                          hour12: true,
-                        })}
-                        
-                        </b>
-
-
-                      </TableCell>
-
-                     
-
-                      <TableCell align="center" component="th" scope="row">
-
-
-                        <b>
-
-                        {this.convertToHoursAndMinutes(ttime.total_time)}
-
-                        
-</b>
-
-
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          <TableCell align="center" component="th" scope="row">
+                            <b>
+                              {ttime &&
+                                this.convertToHoursAndMinutes(ttime.total_time)}
+                            </b>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  : null}
               </TableBody>
             </Table>
 

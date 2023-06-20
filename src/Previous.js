@@ -238,21 +238,14 @@ class Previous extends Component {
                     <TableHead>
                       <TableRow>
                         <TableCell align="center">
-
-                        <b>  Start Date & Time </b>
-                          
-                          </TableCell>
-                        <TableCell align="center">
-
-                        <b>  Last Usage Date & Time </b> 
-
+                          <b> Start Date & Time </b>
                         </TableCell>
                         <TableCell align="center">
-                          <b> 
-                          Duration
-                          </b>
-                          
-                          </TableCell>
+                          <b> Last Usage Date & Time </b>
+                        </TableCell>
+                        <TableCell align="center">
+                          <b>Duration</b>
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>

@@ -4,6 +4,7 @@ const path = require('path');
 const isDev = process.env.NODE_ENV !== 'production';
 
 let backendProcess;
+let isReloaded = false;
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -11,6 +12,9 @@ function createWindow() {
     height: 620,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
+      contentSecurityPolicy: "script-src 'self' 'unsafe-inline';"
     },
   });
 
@@ -32,13 +36,23 @@ function createWindow() {
   } else {
     loadURL();
   }
+
+  // Reload the window once, 3 seconds after the 'ready-to-show' event
+  win.once('ready-to-show', () => {
+    setTimeout(() => {
+      if (!isReloaded) {
+        win.reload();
+        isReloaded = true;
+      }
+    }, 3000);
+  });
 }
 
 app.whenReady().then(() => {
   backendProcess = require('child_process').fork(
     path.join(__dirname, '../backend/server.js'),
     {
-      env: { ...process.env, MONGODB_URI: process.env.MONGODB_URI },
+      env: { ...process.env, MONGO_URI: process.env.MONGO_URI },
     }
   );
 

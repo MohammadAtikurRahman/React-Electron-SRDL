@@ -76,16 +76,32 @@
     "build": {
         "appId": "com.example.my-electron-app",
         "files": [
-            "build/**/*",
-            "public/electron.js",
-            "backend/**/*"
+          "build/**/*",
+          "public/electron.js",
+          "backend/**/*"
         ],
         "directories": {
-            "buildResources": "assets"
+          "buildResources": "assets"
         },
         "extraMetadata": {
-            "main": "public/electron.js",
-            "NODE_ENV": "production"
-        }
-    }
+          "main": "public/electron.js",
+          "NODE_ENV": "production"
+        },
+        "win": {
+          "target": [
+            "nsis"
+          ]
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "installerIcon": "./assets/icon/icon.ico",
+            "uninstallerIcon": "./assets/icon/icon.ico",
+            "installerHeaderIcon": "./assets/icon/icon.ico",
+            "createDesktopShortcut": "always",
+            "runAfterFinish": false
+          }
+          
+      }
+      
 }
