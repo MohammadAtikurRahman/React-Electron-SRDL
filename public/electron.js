@@ -11,10 +11,12 @@ function createWindow() {
     width: 900,
     height: 620,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true,
-      contentSecurityPolicy: "script-src 'self' 'unsafe-inline';"
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      contentSecurityPolicy: "default-src 'self'; script-src 'self'",
+      preload: path.join(__dirname, 'preload.js')
+
     },
   });
 

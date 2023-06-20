@@ -181,11 +181,11 @@ export default class Dashboard extends Component {
     });
 
     const currentTime = new Date();
-    const currentDate = currentTime.toLocaleDateString();
+    const currentDate = currentTime.toISOString().split('T')[0]; // Get date in YYYY-MM-DD format
     const newTimeData = {
-      windowsStartTime: currentTime.toLocaleString(),
+      windowsStartTime: currentTime.toISOString(), // Get time in ISO format
     };
-
+    
     const storedData = localStorage.getItem("timeData");
     if (storedData) {
       const timeArray = JSON.parse(storedData);
@@ -196,14 +196,14 @@ export default class Dashboard extends Component {
       );
       newTimeData.duration = duration;
       timeArray.push(newTimeData);
-
+    
       localStorage.setItem("timeData", JSON.stringify(timeArray, null, 2));
-
+    
       const todaysData = timeArray.filter((item) => {
-        const itemDate = new Date(item.windowsStartTime).toLocaleDateString();
+        const itemDate = new Date(item.windowsStartTime).toISOString().split('T')[0]; // Get date in YYYY-MM-DD format
         return itemDate === currentDate;
       });
-
+    
       if (todaysData.length > 0) {
         const firstStartTime = new Date(todaysData[0].windowsStartTime);
         const lastStartTime = new Date(
@@ -212,7 +212,7 @@ export default class Dashboard extends Component {
         const totalDuration = Math.floor(
           (lastStartTime.getTime() - firstStartTime.getTime()) / (1000 * 60)
         );
-
+    
         this.setState({
           timeData: {
             totalDuration,
@@ -228,10 +228,9 @@ export default class Dashboard extends Component {
       localStorage.setItem("timeData", JSON.stringify(timeArray, null, 2));
       console.log("Time data saved to storage");
     }
-
+    
     // After setting timeData, send the data to the server
     this.sendPcData(this.state.timeData);
-
     fetch("http://localhost:2000/userid")
       .then((response) => response.json())
       .then((data) => this.setState({ user: data }));
