@@ -585,7 +585,7 @@ export default class Video extends Component {
                 <Button
                   className="button_style"
                   variant="contained"
-                  color="success"
+                  color="inherit"
                   size="small"
                   style={{ zIndex: "9999" }}
                   onClick={this.downloadCSV}
@@ -599,7 +599,7 @@ export default class Video extends Component {
 
         <AppBar position="static" style={{ backgroundColor: "#3399CC" }}>
           {this.state?.filteredBeneficiary?.map((row, index) => (
-            <Toolbar>
+            <Toolbar    >
               <div>
                 <div
                   style={{
@@ -611,7 +611,7 @@ export default class Video extends Component {
                   }}
                 >
                   <Button
-                    variant="h6"
+                    variant="contained"
                     style={{
                       fontWeight: "bold",
                       fontSize: "16px", // Adjust the font size as desired
