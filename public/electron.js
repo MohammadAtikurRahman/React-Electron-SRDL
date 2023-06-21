@@ -40,6 +40,12 @@ function createWindow() {
   }
 
   // Reload the window once, 3 seconds after the 'ready-to-show' event
+  win.webContents.on('did-fail-load', () => {
+    console.log('Failed to load the URL, retrying...');
+    loadURL();
+  });
+
+
   win.once('ready-to-show', () => {
     setTimeout(() => {
       if (!isReloaded) {
